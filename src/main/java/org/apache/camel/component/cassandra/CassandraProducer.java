@@ -20,6 +20,7 @@ import java.net.InetAddress;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.Iterator;
+import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 
@@ -34,6 +35,7 @@ import org.slf4j.LoggerFactory;
 import com.datastax.driver.core.Cluster;
 import com.datastax.driver.core.ResultSet;
 import com.datastax.driver.core.Session;
+import com.datastax.driver.core.Statement;
 import com.datastax.driver.core.querybuilder.QueryBuilder;
 import com.datastax.driver.core.querybuilder.Select;
 import com.datastax.driver.core.querybuilder.Update;
@@ -42,8 +44,7 @@ import com.datastax.driver.core.querybuilder.Update;
  * The MongoDb producer.
  */
 public class CassandraProducer extends DefaultProducer {
-	private static final Logger LOG = LoggerFactory
-			.getLogger(CassandraProducer.class);
+	private static final Logger LOG = LoggerFactory.getLogger(CassandraProducer.class);
 
 	private CassandraEndpoint endpoint;
 
@@ -119,29 +120,49 @@ public class CassandraProducer extends DefaultProducer {
 	protected void doSelectWhere(Exchange exchange, CassandraOperations operation, Session session) throws Exception {
 		ResultSet result = null;
 		Select.Where select = null;
-		HashMap<CassandraComparator, HashMap<String, Object>> mapWhere = (HashMap<CassandraComparator, HashMap<String, Object>>) exchange.getIn().getHeader(CassandraConstants.WHERE_CLAUSE);
+		CassandraOperator operator = (CassandraOperator) exchange.getIn().getHeader(CassandraConstants.CASSANDRA_OPERATOR);
+		HashMap<String, Object> mapWhere = (HashMap<String, Object>) exchange.getIn().getHeader(CassandraConstants.WHERE_CLAUSE);
 		if (operation == CassandraOperations.selectWhere) {
-			Iterator it = mapWhere.entrySet().iterator();
-			select = QueryBuilder.select().all().from(endpoint.getTable()).where();
-			while (it.hasNext()) {
-				Map.Entry pairs = (Map.Entry) it.next();
-				CassandraComparator whereOperator = (CassandraComparator) pairs.getKey();
-				switch (whereOperator) {
+				select = QueryBuilder.select().all().from(endpoint.getTable()).where();
+				switch (operator) {
 				case eq:
-					HashMap<String, Object> values = (HashMap<String, Object>) pairs.getValue();
-					Iterator itValues = values.entrySet().iterator();
-					while (itValues.hasNext()) {
-						Map.Entry internalValues = (Entry) itValues.next();
-						select.and(QueryBuilder.eq((String) internalValues.getKey(), internalValues.getValue()));
-						itValues.remove();
+					Iterator whereIterator = mapWhere.entrySet().iterator();
+					while (whereIterator.hasNext()) {
+						Map.Entry pairs = (Map.Entry) whereIterator.next();
+						String whereOperator = (String) pairs.getKey();
+						Object value = (Object) pairs.getValue();
+							select.and(QueryBuilder.eq((String) whereOperator, value));
+							whereIterator.remove();
+					}
+					break;
+				case gt:
+					whereIterator = mapWhere.entrySet().iterator();
+					while (whereIterator.hasNext()) {
+						Map.Entry pairs = (Map.Entry) whereIterator.next();
+						String whereOperator = (String) pairs.getKey();
+						Object value = (Object) pairs.getValue();
+							select.and(QueryBuilder.gt((String) whereOperator, value));
+							whereIterator.remove();
+					}
+					break;
+				case in:
+					whereIterator = mapWhere.entrySet().iterator();
+					while (whereIterator.hasNext()) {
+						Map.Entry pairs = (Map.Entry) whereIterator.next();
+						String whereOperator = (String) pairs.getKey();
+						Object value = (Object) pairs.getValue();
+						select.and(QueryBuilder.in((String) whereOperator, (List<Object>) value));
+						whereIterator.remove();
 					}
 					break;
 				default:
 					break;
 				}
+				String column = (String) exchange.getIn().getHeader(CassandraConstants.ORDERBY_COLUMN);
+				CassandraOperator orderDirection = (CassandraOperator) exchange.getIn().getHeader(CassandraConstants.ORDER_DIRECTION);
+				appendOrderBy(select, orderDirection, column);
 				result = session.execute(select);
 			}
-		}
 
 		Message responseMessage = prepareResponseMessage(exchange, operation);
 		responseMessage.setBody(result);
@@ -150,7 +171,8 @@ public class CassandraProducer extends DefaultProducer {
 	protected void doUpdate(Exchange exchange, CassandraOperations operation, Session session) throws Exception {
 		ResultSet result = null;
 		Update update = null;
-		HashMap<CassandraComparator, HashMap<String, Object>> mapWhere = (HashMap<CassandraComparator, HashMap<String, Object>>) exchange.getIn().getHeader(CassandraConstants.WHERE_CLAUSE);
+		CassandraOperator operator = (CassandraOperator) exchange.getIn().getHeader(CassandraConstants.CASSANDRA_OPERATOR);
+		HashMap<String, Object> mapWhere = (HashMap<String, Object>) exchange.getIn().getHeader(CassandraConstants.WHERE_CLAUSE);
 		HashMap<String, Object> updatingObject = (HashMap<String, Object>) exchange.getIn().getHeader(CassandraConstants.UPDATE_OBJECT);
 		if (operation == CassandraOperations.update) {
 			update = QueryBuilder.update(endpoint.getTable());
@@ -160,30 +182,35 @@ public class CassandraProducer extends DefaultProducer {
 				update.with(QueryBuilder.set((String) element.getKey(), element.getValue()));
 				updateIterator.remove();
 			}
-			Iterator whereIterator = mapWhere.entrySet().iterator();
-			while (whereIterator.hasNext()) {
-				Map.Entry pairs = (Map.Entry) whereIterator.next();
-				CassandraComparator whereOperator = (CassandraComparator) pairs.getKey();
-				switch (whereOperator) {
+			switch (operator) {
 				case eq:
-					HashMap<String, Object> values = (HashMap<String, Object>) pairs.getValue();
-					Iterator itValues = values.entrySet().iterator();
-					int index = 0;
-					while (itValues.hasNext()) {
-						Map.Entry internalValues = (Entry) itValues.next();
-						update.where(QueryBuilder.eq((String) internalValues.getKey(), internalValues.getValue()));
-						itValues.remove();
-					}
+					Iterator whereIterator = mapWhere.entrySet().iterator();
+					while (whereIterator.hasNext()) {
+						Map.Entry pairs = (Map.Entry) whereIterator.next();
+						String whereOperator = (String) pairs.getKey();
+						Object value = (Object) pairs.getValue();
+							update.where(QueryBuilder.eq((String) whereOperator, value));
+							whereIterator.remove();
+						}
 					break;
 				default:
 					break;
-				}
-				result = session.execute(update);
 			}
+			result = session.execute(update);
 		}
 
 		Message responseMessage = prepareResponseMessage(exchange, operation);
 		responseMessage.setBody(result);
+	}
+	
+	private void appendOrderBy(Select.Where select, CassandraOperator orderDirection, String columnName){
+		if (columnName != null && orderDirection != null){
+				if (orderDirection.equals(CassandraOperator.asc)){
+					select.orderBy(QueryBuilder.asc((String) columnName));
+				} else {
+					select.orderBy(QueryBuilder.desc((String) columnName));
+				}
+			}
 	}
 	
 	private Message prepareResponseMessage(Exchange exchange, CassandraOperations operation) {

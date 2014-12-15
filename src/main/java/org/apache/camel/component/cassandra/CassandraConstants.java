@@ -21,6 +21,9 @@ public final class CassandraConstants {
 	public static final String CONTACT_POINTS = "CamelCassandraContactPoints";
     public static final String OPERATION_HEADER = "CamelCassandraDbOperation";
     public static final String WHERE_CLAUSE = "CamelCassandraWhereClause";
+    public static final String CASSANDRA_OPERATOR = "CamelCassandraOperator";
+    public static final String ORDERBY_COLUMN = "CamelCassandraOrderByColumn";
+    public static final String ORDER_DIRECTION = "CamelCassandraOrderDirection";
     public static final String UPDATE_OBJECT = "CamelCassandraUpdateObject";
     
     private CassandraConstants() {

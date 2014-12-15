@@ -45,14 +45,14 @@ public class CassandraSelectAllWhereTest extends CamelTestSupport {
 		Collection<InetAddress> collAddr = new HashSet<InetAddress>();
 		collAddr.add(addr);
 		headers.put(CassandraConstants.CONTACT_POINTS, collAddr);
-		HashMap<CassandraComparator, HashMap<String, Object>> mapWhere = new HashMap<CassandraComparator, HashMap<String, Object>>();
+		HashMap<CassandraOperator, HashMap<String, Object>> mapWhere = new HashMap<CassandraOperator, HashMap<String, Object>>();
 		HashMap<String, Object> mapEqual = new HashMap<String, Object>();
-		mapEqual.put("id",
-				UUID.fromString("a51e426a-3bbe-4bf7-9f99-1589ebb72b35"));
-		mapEqual.put("album","The gathering");
-		List<Clause> list = new ArrayList<Clause>();
-		mapWhere.put(CassandraComparator.eq, mapEqual);
-		headers.put(CassandraConstants.WHERE_CLAUSE, mapWhere);
+		List<UUID> uuidList = new ArrayList<UUID>();
+		uuidList.add(UUID.fromString("a51e426a-3bbe-4bf7-9f99-1589ebb72b35"));
+		
+		mapEqual.put("id",uuidList);
+		headers.put(CassandraConstants.WHERE_CLAUSE, mapEqual);
+		headers.put(CassandraConstants.CASSANDRA_OPERATOR, CassandraOperator.in);
 		ResultSet result = (ResultSet) template.requestBodyAndHeaders(
 				"direct:in", body, headers);
 		System.out

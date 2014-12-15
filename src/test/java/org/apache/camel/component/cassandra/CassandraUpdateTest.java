@@ -44,11 +44,10 @@ public class CassandraUpdateTest extends CamelTestSupport {
 		HashMap<String, Object> updatingObject = new HashMap<String, Object>();
 		updatingObject.put("album", "Demonic");
 		updatingObject.put("title", "Demonic Refusal");
-		HashMap<CassandraComparator, HashMap<String, Object>> mapWhere = new HashMap<CassandraComparator, HashMap<String, Object>>();
 		HashMap<String, Object> mapEqual = new HashMap<String, Object>();
 		mapEqual.put("id", UUID.fromString("a51e426a-3bbe-4bf7-9f99-1589ebb72b35"));
-		mapWhere.put(CassandraComparator.eq, mapEqual);
-		headers.put(CassandraConstants.WHERE_CLAUSE, mapWhere);
+		headers.put(CassandraConstants.WHERE_CLAUSE, mapEqual);
+		headers.put(CassandraConstants.CASSANDRA_OPERATOR, CassandraOperator.eq);
 		headers.put(CassandraConstants.UPDATE_OBJECT, updatingObject);
 		ResultSet result = (ResultSet) template.requestBodyAndHeaders("direct:in", body, headers);
 		System.out

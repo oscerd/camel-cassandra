@@ -1,10 +1,12 @@
 package org.apache.camel.component.cassandra;
 
-public enum CassandraComparator {
+public enum CassandraOperator {
 	eq,
 	lt,
 	lte,
 	gt,
 	gte,
-	in
+	in,
+	asc,
+	desc
 }
