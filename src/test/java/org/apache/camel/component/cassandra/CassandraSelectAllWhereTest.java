@@ -45,13 +45,14 @@ public class CassandraSelectAllWhereTest extends CamelTestSupport {
 		Collection<InetAddress> collAddr = new HashSet<InetAddress>();
 		collAddr.add(addr);
 		headers.put(CassandraConstants.CONTACT_POINTS, collAddr);
-		HashMap<CassandraOperator, HashMap<String, Object>> mapWhere = new HashMap<CassandraOperator, HashMap<String, Object>>();
 		HashMap<String, Object> mapEqual = new HashMap<String, Object>();
 		List<UUID> uuidList = new ArrayList<UUID>();
 		uuidList.add(UUID.fromString("a51e426a-3bbe-4bf7-9f99-1589ebb72b35"));
+		uuidList.add(UUID.fromString("657521d8-b7b4-4652-9286-9cdde0649462"));
 		
 		mapEqual.put("id",uuidList);
-		headers.put(CassandraConstants.WHERE_CLAUSE, mapEqual);
+		headers.put(CassandraConstants.WHERE_COLUMN, "id");
+		headers.put(CassandraConstants.WHERE_VALUE, uuidList);
 		headers.put(CassandraConstants.CASSANDRA_OPERATOR, CassandraOperator.in);
 		ResultSet result = (ResultSet) template.requestBodyAndHeaders(
 				"direct:in", body, headers);
@@ -74,7 +75,7 @@ public class CassandraSelectAllWhereTest extends CamelTestSupport {
 		return new RouteBuilder() {
 			public void configure() {
 				from("direct:in")
-						.to("cassandra:cassandraConnection?keyspace=simplex&table=songs&operation=selectWhere");
+						.to("cassandra:cassandraConnection?keyspace=simplex&table=songs&operation=selectAllWhere");
 			}
 		};
 	}

@@ -4,6 +4,7 @@ public enum CassandraOperations {
 
     // read operations
     selectAll,
-    selectWhere,
+    selectAllWhere,
+    selectColumnsWhere,
     update
 }

@@ -45,13 +45,8 @@ public class CassandraSelectAllWhereOrderByTest extends CamelTestSupport {
 		Collection<InetAddress> collAddr = new HashSet<InetAddress>();
 		collAddr.add(addr);
 		headers.put(CassandraConstants.CONTACT_POINTS, collAddr);
-		HashMap<String, Object> mapEqual = new HashMap<String, Object>();
-		mapEqual.put("id",
-				UUID.fromString("a51e426a-3bbe-4bf7-9f99-1589ebb72b35"));
-		mapEqual.put("album","Demonic");
-		
-		List<Clause> list = new ArrayList<Clause>();
-		headers.put(CassandraConstants.WHERE_CLAUSE, mapEqual);
+		headers.put(CassandraConstants.WHERE_COLUMN, "id");
+		headers.put(CassandraConstants.WHERE_VALUE, UUID.fromString("a51e426a-3bbe-4bf7-9f99-1589ebb72b35"));
 		headers.put(CassandraConstants.CASSANDRA_OPERATOR, CassandraOperator.eq);
 		//headers.put(CassandraConstants.ORDERBY_COLUMN, "id");
 		//headers.put(CassandraConstants.ORDER_DIRECTION, CassandraOperator.asc);
@@ -76,7 +71,7 @@ public class CassandraSelectAllWhereOrderByTest extends CamelTestSupport {
 		return new RouteBuilder() {
 			public void configure() {
 				from("direct:in")
-						.to("cassandra:cassandraConnection?keyspace=simplex&table=songs&operation=selectWhere");
+						.to("cassandra:cassandraConnection?keyspace=simplex&table=songs&operation=selectAllWhere");
 			}
 		};
 	}

@@ -94,8 +94,8 @@ public class CassandraProducer extends DefaultProducer {
 		case selectAll:
 			doSelectAll(exchange, CassandraOperations.selectAll, session);
 			break;
-		case selectWhere:
-			doSelectWhere(exchange, CassandraOperations.selectWhere, session);
+		case selectAllWhere:
+			doSelectWhere(exchange, CassandraOperations.selectAllWhere, session);
 			break;
 		case update:
 			doUpdate(exchange, CassandraOperations.update, session);
@@ -121,42 +121,33 @@ public class CassandraProducer extends DefaultProducer {
 		ResultSet result = null;
 		Select.Where select = null;
 		CassandraOperator operator = (CassandraOperator) exchange.getIn().getHeader(CassandraConstants.CASSANDRA_OPERATOR);
-		HashMap<String, Object> mapWhere = (HashMap<String, Object>) exchange.getIn().getHeader(CassandraConstants.WHERE_CLAUSE);
-		if (operation == CassandraOperations.selectWhere) {
+		String whereColumn = (String) exchange.getIn().getHeader(CassandraConstants.WHERE_COLUMN);
+		Object whereValue = (Object) exchange.getIn().getHeader(CassandraConstants.WHERE_VALUE);
+		if (operation == CassandraOperations.selectAllWhere) {
 				select = QueryBuilder.select().all().from(endpoint.getTable()).where();
-				switch (operator) {
-				case eq:
-					Iterator whereIterator = mapWhere.entrySet().iterator();
-					while (whereIterator.hasNext()) {
-						Map.Entry pairs = (Map.Entry) whereIterator.next();
-						String whereOperator = (String) pairs.getKey();
-						Object value = (Object) pairs.getValue();
-							select.and(QueryBuilder.eq((String) whereOperator, value));
-							whereIterator.remove();
+				if (whereColumn != null && whereValue != null){
+					switch (operator) {
+					case eq:
+						select.and(QueryBuilder.eq(whereColumn, whereValue));
+						break;
+					case gt:
+						select.and(QueryBuilder.gt(whereColumn, whereValue));
+						break;
+					case gte:
+						select.and(QueryBuilder.gte(whereColumn, whereValue));
+						break;
+					case lt:
+						select.and(QueryBuilder.lt(whereColumn, whereValue));
+						break;
+					case lte:
+						select.and(QueryBuilder.gte(whereColumn, whereValue));
+						break;
+					case in:
+						select.and(QueryBuilder.in(whereColumn, (List<Object>)whereValue));
+						break;
+					default:
+						break;
 					}
-					break;
-				case gt:
-					whereIterator = mapWhere.entrySet().iterator();
-					while (whereIterator.hasNext()) {
-						Map.Entry pairs = (Map.Entry) whereIterator.next();
-						String whereOperator = (String) pairs.getKey();
-						Object value = (Object) pairs.getValue();
-							select.and(QueryBuilder.gt((String) whereOperator, value));
-							whereIterator.remove();
-					}
-					break;
-				case in:
-					whereIterator = mapWhere.entrySet().iterator();
-					while (whereIterator.hasNext()) {
-						Map.Entry pairs = (Map.Entry) whereIterator.next();
-						String whereOperator = (String) pairs.getKey();
-						Object value = (Object) pairs.getValue();
-						select.and(QueryBuilder.in((String) whereOperator, (List<Object>) value));
-						whereIterator.remove();
-					}
-					break;
-				default:
-					break;
 				}
 				String column = (String) exchange.getIn().getHeader(CassandraConstants.ORDERBY_COLUMN);
 				CassandraOperator orderDirection = (CassandraOperator) exchange.getIn().getHeader(CassandraConstants.ORDER_DIRECTION);
@@ -172,7 +163,8 @@ public class CassandraProducer extends DefaultProducer {
 		ResultSet result = null;
 		Update update = null;
 		CassandraOperator operator = (CassandraOperator) exchange.getIn().getHeader(CassandraConstants.CASSANDRA_OPERATOR);
-		HashMap<String, Object> mapWhere = (HashMap<String, Object>) exchange.getIn().getHeader(CassandraConstants.WHERE_CLAUSE);
+		String whereColumn = (String) exchange.getIn().getHeader(CassandraConstants.WHERE_COLUMN);
+		Object whereValue = (Object) exchange.getIn().getHeader(CassandraConstants.WHERE_VALUE);
 		HashMap<String, Object> updatingObject = (HashMap<String, Object>) exchange.getIn().getHeader(CassandraConstants.UPDATE_OBJECT);
 		if (operation == CassandraOperations.update) {
 			update = QueryBuilder.update(endpoint.getTable());
@@ -182,19 +174,29 @@ public class CassandraProducer extends DefaultProducer {
 				update.with(QueryBuilder.set((String) element.getKey(), element.getValue()));
 				updateIterator.remove();
 			}
-			switch (operator) {
+			if (whereColumn != null && whereValue != null){
+				switch (operator) {
 				case eq:
-					Iterator whereIterator = mapWhere.entrySet().iterator();
-					while (whereIterator.hasNext()) {
-						Map.Entry pairs = (Map.Entry) whereIterator.next();
-						String whereOperator = (String) pairs.getKey();
-						Object value = (Object) pairs.getValue();
-							update.where(QueryBuilder.eq((String) whereOperator, value));
-							whereIterator.remove();
-						}
+					update.where(QueryBuilder.eq(whereColumn, whereValue));
+					break;
+				case gt:
+					update.where(QueryBuilder.gt(whereColumn, whereValue));
+					break;
+				case gte:
+					update.where(QueryBuilder.gte(whereColumn, whereValue));
+					break;
+				case lt:
+					update.where(QueryBuilder.lt(whereColumn, whereValue));
+					break;
+				case lte:
+					update.where(QueryBuilder.gte(whereColumn, whereValue));
+					break;
+				case in:
+					update.where(QueryBuilder.in(whereColumn, (List<Object>)whereValue));
 					break;
 				default:
 					break;
+				}
 			}
 			result = session.execute(update);
 		}
