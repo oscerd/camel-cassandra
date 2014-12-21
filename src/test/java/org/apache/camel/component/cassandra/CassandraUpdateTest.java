@@ -37,24 +37,21 @@ public class CassandraUpdateTest extends CassandraBaseTest {
 
 	@Test
 	public void testUpdate() throws IOException, InterruptedException {
-		CassandraBaseTest baseTest = new CassandraBaseTest();
-		baseTest.setup();
 		String body = "";
 		Map<String, Object> headers = new HashMap<String, Object>();
 		InetAddress addr = InetAddress.getByName("127.0.0.1");
 		Collection<InetAddress> collAddr = new HashSet<InetAddress>();
 		collAddr.add(addr);
-		headers.put(CassandraConstants.CONTACT_POINTS, collAddr);
+		headers.put(CassandraConstants.CASSANDRA_CONTACT_POINTS, collAddr);
 		HashMap<String, Object> updatingObject = new HashMap<String, Object>();
 		updatingObject.put("album", "Demonic");
 		updatingObject.put("title", "Demonic Refusal");
-		headers.put(CassandraConstants.WHERE_COLUMN, "id");
-		headers.put(CassandraConstants.WHERE_VALUE, 1);
+		headers.put(CassandraConstants.CASSANDRA_WHERE_COLUMN, "id");
+		headers.put(CassandraConstants.CASSANDRA_WHERE_VALUE, 1);
 		headers.put(CassandraConstants.CASSANDRA_OPERATOR, CassandraOperator.eq);
-		headers.put(CassandraConstants.UPDATE_OBJECT, updatingObject);
+		headers.put(CassandraConstants.CASSANDRA_UPDATE_OBJECT, updatingObject);
 		ResultSet result = (ResultSet) template.requestBodyAndHeaders("direct:in", body, headers);
 		assertEquals(result.wasApplied(), true);
-		baseTest.shutdown();
 	}
 
 	protected RouteBuilder createRouteBuilder() throws Exception {

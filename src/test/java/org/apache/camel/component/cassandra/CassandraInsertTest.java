@@ -35,15 +35,12 @@ public class CassandraInsertTest extends CassandraBaseTest {
 
 	@Test
 	public void testInsert() throws IOException, InterruptedException {
-		CassandraBaseTest baseTest = new CassandraBaseTest();
-		baseTest.setup();
-		
 		String body = "";
 		Map<String, Object> headers = new HashMap<String, Object>();
 		InetAddress addr = InetAddress.getByName("127.0.0.1");
 		Collection<InetAddress> collAddr = new HashSet<InetAddress>();
 		collAddr.add(addr);
-		headers.put(CassandraConstants.CONTACT_POINTS, collAddr);
+		headers.put(CassandraConstants.CASSANDRA_CONTACT_POINTS, collAddr);
 		
 		Set<String> tags = new HashSet<String>();
 		tags.add("2003");
@@ -54,10 +51,9 @@ public class CassandraInsertTest extends CassandraBaseTest {
 		insert.put("title", "St. Anger");
 		insert.put("artist", "Metallica");
 		insert.put("tags", tags);
-		headers.put(CassandraConstants.INSERT_OBJECT, insert);
+		headers.put(CassandraConstants.CASSANDRA_INSERT_OBJECT, insert);
 		ResultSet result = (ResultSet) template.requestBodyAndHeaders("direct:in", body, headers); 
 		assertEquals(result.isExhausted(), true);
-		baseTest.shutdown();
 	}
 
 	protected RouteBuilder createRouteBuilder() throws Exception {

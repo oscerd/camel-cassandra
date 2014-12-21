@@ -18,16 +18,17 @@ package org.apache.camel.component.cassandra;
 
 public final class CassandraConstants {
 
-	public static final String CONTACT_POINTS = "CamelCassandraContactPoints";
-	public static final String PORT = "CamelCassandraPort";
-    public static final String OPERATION_HEADER = "CamelCassandraDbOperation";
-    public static final String WHERE_COLUMN = "CamelCassandraWhereClause";
-    public static final String WHERE_VALUE = "CamelCassandraWhereValue";
+	public static final String CASSANDRA_CONTACT_POINTS = "CamelCassandraContactPoints";
+	public static final String CASSANDRA_PORT = "CamelCassandraPort";
+    public static final String CASSANDRA_OPERATION_HEADER = "CamelCassandraDbOperation";
+    public static final String CASSANDRA_SELECT_COLUMN = "CamelCassandraSelectColumn";
+    public static final String CASSANDRA_WHERE_COLUMN = "CamelCassandraWhereClause";
+    public static final String CASSANDRA_WHERE_VALUE = "CamelCassandraWhereValue";
     public static final String CASSANDRA_OPERATOR = "CamelCassandraOperator";
-    public static final String ORDERBY_COLUMN = "CamelCassandraOrderByColumn";
-    public static final String ORDER_DIRECTION = "CamelCassandraOrderDirection";
-    public static final String UPDATE_OBJECT = "CamelCassandraUpdateObject";
-    public static final String INSERT_OBJECT = "CamelCassandraInsertObject";
+    public static final String CASSANDRA_ORDERBY_COLUMN = "CamelCassandraOrderByColumn";
+    public static final String CASSANDRA_ORDER_DIRECTION = "CamelCassandraOrderDirection";
+    public static final String CASSANDRA_UPDATE_OBJECT = "CamelCassandraUpdateObject";
+    public static final String CASSANDRA_INSERT_OBJECT = "CamelCassandraInsertObject";
     
     private CassandraConstants() {
     }

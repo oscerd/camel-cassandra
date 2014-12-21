@@ -22,7 +22,6 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
-import java.util.Map.Entry;
 
 import org.apache.camel.Exchange;
 import org.apache.camel.Message;
@@ -35,7 +34,7 @@ import org.slf4j.LoggerFactory;
 import com.datastax.driver.core.Cluster;
 import com.datastax.driver.core.ResultSet;
 import com.datastax.driver.core.Session;
-import com.datastax.driver.core.Statement;
+import com.datastax.driver.core.querybuilder.Delete;
 import com.datastax.driver.core.querybuilder.Insert;
 import com.datastax.driver.core.querybuilder.QueryBuilder;
 import com.datastax.driver.core.querybuilder.Select;
@@ -56,38 +55,60 @@ public class CassandraProducer extends DefaultProducer {
 
 	public void process(Exchange exchange) throws Exception {
 		Cluster cassandra = endpoint.getCassandraCluster();
-		Collection<InetAddress> contact = (Collection<InetAddress>) exchange.getIn().getHeader(CassandraConstants.CONTACT_POINTS);
-		String cassandra_port = (String) exchange.getIn().getHeader(CassandraConstants.PORT);
+		Collection<InetAddress> contact = (Collection<InetAddress>) exchange.getIn().getHeader(CassandraConstants.CASSANDRA_CONTACT_POINTS);
+		String cassandra_port = (String) exchange.getIn().getHeader(CassandraConstants.CASSANDRA_PORT);
 		if (cassandra_port == null){
 			cassandra = Cluster.builder().addContactPoints(contact).build();
 		} else {
 			cassandra = Cluster.builder().addContactPoints(contact).withPort(Integer.parseInt(cassandra_port)).build();
 		}
-		Session session = cassandra.connect(endpoint.getKeyspace());
-		CassandraOperations operation = endpoint.getOperation();
-		Object header = exchange.getIn().getHeader(CassandraConstants.OPERATION_HEADER);
-		if (header != null) {
-			LOG.debug("Overriding default operation with operation specified on header: {}", header);
+		String body = (String) exchange.getIn().getBody();
+		if (body != null){
+			Session session = cassandra.connect(endpoint.getKeyspace());
 			try {
-				if (header instanceof CassandraOperations) {
-					operation = ObjectHelper.cast(CassandraOperations.class, header);
-				} else {
-					// evaluate as a String
-					operation = CassandraOperations.valueOf(exchange.getIn().getHeader(CassandraConstants.OPERATION_HEADER, String.class));
-				}
+				executePlainCQLQuery(exchange, body, session);
 			} catch (Exception e) {
-				throw new CassandraException("Operation specified on header is not supported. Value: " + header, e);
+				throw CassandraComponent.wrapInCamelCassandraException(e);
+			} finally {
+				session.close();
+				cassandra.close();
 			}
-		}
-		try {
-			invokeOperation(operation, exchange, session);
-			session.close();
-			cassandra.close();
-		} catch (Exception e) {
-			throw CassandraComponent.wrapInCamelCassandraException(e);
+		} else {
+			CassandraOperations operation = endpoint.getOperation();
+			Session session = cassandra.connect(endpoint.getKeyspace());
+			Object header = exchange.getIn().getHeader(CassandraConstants.CASSANDRA_OPERATION_HEADER);
+			if (header != null) {
+				LOG.debug("Overriding default operation with operation specified on header: {}", header);
+				try {
+					if (header instanceof CassandraOperations) {
+						operation = ObjectHelper.cast(CassandraOperations.class, header);
+					} else {
+						// evaluate as a String
+						operation = CassandraOperations.valueOf(exchange.getIn().getHeader(CassandraConstants.CASSANDRA_OPERATION_HEADER, String.class));
+					}
+				} catch (Exception e) {
+					throw new CassandraException("Operation specified on header is not supported. Value: " + header, e);
+				}
+			}
+			try {
+				invokeOperation(operation, exchange, session);
+			} catch (Exception e) {
+				throw CassandraComponent.wrapInCamelCassandraException(e);
+			} finally {
+				session.close();
+				cassandra.close();
+			}
 		}
 	}
 
+	protected void executePlainCQLQuery (Exchange exchange, String query, Session session){
+		ResultSet result = null;
+		result = session.execute(query);
+		
+		Message responseMessage = prepareResponseMessage(exchange);
+		responseMessage.setBody(result);
+	}
+	
 	/**
 	 * Entry method that selects the appropriate Cassandra operation and executes
 	 * it
@@ -105,11 +126,20 @@ public class CassandraProducer extends DefaultProducer {
 		case selectAllWhere:
 			doSelectWhere(exchange, CassandraOperations.selectAllWhere, session);
 			break;
+		case selectColumn:
+			doSelectColumn(exchange, CassandraOperations.selectColumn, session);
+			break;
+		case selectColumnWhere:
+			doSelectColumnWhere(exchange, CassandraOperations.selectColumnWhere, session);
+			break;
 		case insert:
 			doInsert(exchange, CassandraOperations.insert, session);
 			break;
 		case update:
 			doUpdate(exchange, CassandraOperations.update, session);
+			break;
+		case deleteWhere:
+			doDeleteWhere(exchange, CassandraOperations.deleteWhere, session);
 			break;
 		default:
 			return;
@@ -124,7 +154,7 @@ public class CassandraProducer extends DefaultProducer {
 			result = session.execute(select);
 		}
 
-		Message responseMessage = prepareResponseMessage(exchange, operation);
+		Message responseMessage = prepareResponseMessage(exchange);
 		responseMessage.setBody(result);
 	}
 
@@ -132,8 +162,8 @@ public class CassandraProducer extends DefaultProducer {
 		ResultSet result = null;
 		Select.Where select = null;
 		CassandraOperator operator = (CassandraOperator) exchange.getIn().getHeader(CassandraConstants.CASSANDRA_OPERATOR);
-		String whereColumn = (String) exchange.getIn().getHeader(CassandraConstants.WHERE_COLUMN);
-		Object whereValue = (Object) exchange.getIn().getHeader(CassandraConstants.WHERE_VALUE);
+		String whereColumn = (String) exchange.getIn().getHeader(CassandraConstants.CASSANDRA_WHERE_COLUMN);
+		Object whereValue = (Object) exchange.getIn().getHeader(CassandraConstants.CASSANDRA_WHERE_VALUE);
 		if (operation == CassandraOperations.selectAllWhere) {
 				select = QueryBuilder.select().all().from(endpoint.getTable()).where();
 				if (whereColumn != null && whereValue != null){
@@ -160,21 +190,72 @@ public class CassandraProducer extends DefaultProducer {
 						break;
 					}
 				}
-				String column = (String) exchange.getIn().getHeader(CassandraConstants.ORDERBY_COLUMN);
-				CassandraOperator orderDirection = (CassandraOperator) exchange.getIn().getHeader(CassandraConstants.ORDER_DIRECTION);
+				String column = (String) exchange.getIn().getHeader(CassandraConstants.CASSANDRA_ORDERBY_COLUMN);
+				CassandraOperator orderDirection = (CassandraOperator) exchange.getIn().getHeader(CassandraConstants.CASSANDRA_ORDER_DIRECTION);
 				appendOrderBy(select, orderDirection, column);
-				System.err.println(select.toString());
 				result = session.execute(select);
 			}
 
-		Message responseMessage = prepareResponseMessage(exchange, operation);
+		Message responseMessage = prepareResponseMessage(exchange);
+		responseMessage.setBody(result);
+	}
+	
+	protected void doSelectColumnWhere(Exchange exchange, CassandraOperations operation, Session session) throws Exception {
+		ResultSet result = null;
+		Select.Where select = null;
+		CassandraOperator operator = (CassandraOperator) exchange.getIn().getHeader(CassandraConstants.CASSANDRA_OPERATOR);
+		String whereColumn = (String) exchange.getIn().getHeader(CassandraConstants.CASSANDRA_WHERE_COLUMN);
+		Object whereValue = (Object) exchange.getIn().getHeader(CassandraConstants.CASSANDRA_WHERE_VALUE);
+		String selectColumn = (String) exchange.getIn().getHeader(CassandraConstants.CASSANDRA_SELECT_COLUMN);
+		if (operation == CassandraOperations.selectColumnWhere) {
+				select = QueryBuilder.select().column(selectColumn).from(endpoint.getTable()).where();
+				if (whereColumn != null && whereValue != null){
+					switch (operator) {
+					case eq:
+						select.and(QueryBuilder.eq(whereColumn, whereValue));
+						break;
+					case gt:
+						select.and(QueryBuilder.gt(whereColumn, whereValue));
+						break;
+					case gte:
+						select.and(QueryBuilder.gte(whereColumn, whereValue));
+						break;
+					case lt:
+						select.and(QueryBuilder.lt(whereColumn, whereValue));
+						break;
+					case lte:
+						select.and(QueryBuilder.gte(whereColumn, whereValue));
+						break;
+					case in:
+						select.and(QueryBuilder.in(whereColumn, (List<Object>)whereValue));
+						break;
+					default:
+						break;
+					}
+				}
+				result = session.execute(select);
+			}
+
+		Message responseMessage = prepareResponseMessage(exchange);
+		responseMessage.setBody(result);
+	}
+	
+	protected void doSelectColumn(Exchange exchange, CassandraOperations operation, Session session) throws Exception {
+		ResultSet result = null;
+		Select select = null;
+		String selectColumn = (String) exchange.getIn().getHeader(CassandraConstants.CASSANDRA_SELECT_COLUMN);
+		if (operation == CassandraOperations.selectColumn) {
+				select = QueryBuilder.select().column(selectColumn).from(endpoint.getTable());
+				result = session.execute(select);
+			}
+		Message responseMessage = prepareResponseMessage(exchange);
 		responseMessage.setBody(result);
 	}
 	
 	protected void doInsert(Exchange exchange, CassandraOperations operation, Session session) throws Exception {
 		ResultSet result = null;
 		Insert insert = null;
-		HashMap<String, Object> insertingObject = (HashMap<String, Object>) exchange.getIn().getHeader(CassandraConstants.INSERT_OBJECT);
+		HashMap<String, Object> insertingObject = (HashMap<String, Object>) exchange.getIn().getHeader(CassandraConstants.CASSANDRA_INSERT_OBJECT);
 		if (operation == CassandraOperations.insert) {
 			insert = QueryBuilder.insertInto(endpoint.getTable());
 			Iterator insertIterator = insertingObject.entrySet().iterator();
@@ -186,7 +267,7 @@ public class CassandraProducer extends DefaultProducer {
 			result = session.execute(insert);
 		}
 
-		Message responseMessage = prepareResponseMessage(exchange, operation);
+		Message responseMessage = prepareResponseMessage(exchange);
 		responseMessage.setBody(result);
 	}
 
@@ -194,9 +275,9 @@ public class CassandraProducer extends DefaultProducer {
 		ResultSet result = null;
 		Update update = null;
 		CassandraOperator operator = (CassandraOperator) exchange.getIn().getHeader(CassandraConstants.CASSANDRA_OPERATOR);
-		String whereColumn = (String) exchange.getIn().getHeader(CassandraConstants.WHERE_COLUMN);
-		Object whereValue = (Object) exchange.getIn().getHeader(CassandraConstants.WHERE_VALUE);
-		HashMap<String, Object> updatingObject = (HashMap<String, Object>) exchange.getIn().getHeader(CassandraConstants.UPDATE_OBJECT);
+		String whereColumn = (String) exchange.getIn().getHeader(CassandraConstants.CASSANDRA_WHERE_COLUMN);
+		Object whereValue = (Object) exchange.getIn().getHeader(CassandraConstants.CASSANDRA_WHERE_VALUE);
+		HashMap<String, Object> updatingObject = (HashMap<String, Object>) exchange.getIn().getHeader(CassandraConstants.CASSANDRA_UPDATE_OBJECT);
 		if (operation == CassandraOperations.update) {
 			update = QueryBuilder.update(endpoint.getTable());
 			Iterator updateIterator = updatingObject.entrySet().iterator();
@@ -232,7 +313,46 @@ public class CassandraProducer extends DefaultProducer {
 			result = session.execute(update);
 		}
 
-		Message responseMessage = prepareResponseMessage(exchange, operation);
+		Message responseMessage = prepareResponseMessage(exchange);
+		responseMessage.setBody(result);
+	}
+	
+	protected void doDeleteWhere(Exchange exchange, CassandraOperations operation, Session session) throws Exception {
+		ResultSet result = null;
+		Delete.Where delete = null;
+		CassandraOperator operator = (CassandraOperator) exchange.getIn().getHeader(CassandraConstants.CASSANDRA_OPERATOR);
+		String whereColumn = (String) exchange.getIn().getHeader(CassandraConstants.CASSANDRA_WHERE_COLUMN);
+		Object whereValue = (Object) exchange.getIn().getHeader(CassandraConstants.CASSANDRA_WHERE_VALUE);
+		if (operation == CassandraOperations.deleteWhere) {
+			delete = QueryBuilder.delete().all().from(endpoint.getTable()).where();
+				if (whereColumn != null && whereValue != null){
+					switch (operator) {
+					case eq:
+						delete.and(QueryBuilder.eq(whereColumn, whereValue));
+						break;
+					case gt:
+						delete.and(QueryBuilder.gt(whereColumn, whereValue));
+						break;
+					case gte:
+						delete.and(QueryBuilder.gte(whereColumn, whereValue));
+						break;
+					case lt:
+						delete.and(QueryBuilder.lt(whereColumn, whereValue));
+						break;
+					case lte:
+						delete.and(QueryBuilder.gte(whereColumn, whereValue));
+						break;
+					case in:
+						delete.and(QueryBuilder.in(whereColumn, (List<Object>)whereValue));
+						break;
+					default:
+						break;
+					}
+				}
+				result = session.execute(delete);
+			}
+
+		Message responseMessage = prepareResponseMessage(exchange);
 		responseMessage.setBody(result);
 	}
 	
@@ -246,7 +366,7 @@ public class CassandraProducer extends DefaultProducer {
 			}
 	}
 	
-	private Message prepareResponseMessage(Exchange exchange, CassandraOperations operation) {
+	private Message prepareResponseMessage(Exchange exchange) {
 		Message answer = exchange.getOut();
 		MessageHelper.copyHeaders(exchange.getIn(), answer, false);
 		answer.setBody(exchange.getIn().getBody());

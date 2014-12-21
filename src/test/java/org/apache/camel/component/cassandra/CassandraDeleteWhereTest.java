@@ -25,31 +25,45 @@ import java.util.Map;
 
 import org.apache.camel.builder.RouteBuilder;
 import org.apache.camel.component.cassandra.embedded.CassandraBaseTest;
-import org.apache.camel.test.junit4.CamelTestSupport;
 import org.junit.Test;
 
+import com.datastax.driver.core.Cluster;
 import com.datastax.driver.core.ResultSet;
+import com.datastax.driver.core.Session;
+import com.datastax.driver.core.querybuilder.QueryBuilder;
+import com.datastax.driver.core.querybuilder.Select;
 
-public class CassandraSelectAllTest extends CassandraBaseTest {
+public class CassandraDeleteWhereTest extends CassandraBaseTest {
 
 	@Test
-	public void testInsert() throws IOException, InterruptedException {
+	public void testDelete() throws IOException, InterruptedException {
+		
 		String body = "";
 		Map<String, Object> headers = new HashMap<String, Object>();
 		InetAddress addr = InetAddress.getByName("127.0.0.1");
 		Collection<InetAddress> collAddr = new HashSet<InetAddress>();
 		collAddr.add(addr);
 		headers.put(CassandraConstants.CASSANDRA_CONTACT_POINTS, collAddr);
+		headers.put(CassandraConstants.CASSANDRA_WHERE_COLUMN, "id");
+		headers.put(CassandraConstants.CASSANDRA_WHERE_VALUE, 6);
+		headers.put(CassandraConstants.CASSANDRA_OPERATOR, CassandraOperator.eq);
 		ResultSet result = (ResultSet) template.requestBodyAndHeaders("direct:in", body, headers); 
-		assertEquals(5, result.getAvailableWithoutFetching());
-		System.err.println(result.toString());
+		assertEquals(result.isExhausted(), true);
+		
+		Cluster cluster = Cluster.builder().addContactPoint("127.0.0.1").build();
+		Session session = cluster.connect("simplex");
+		Select select = QueryBuilder.select().all().from("songs");
+		result = session.execute(select);
+		session.close();
+		cluster.close();
+		assertEquals(result.getAvailableWithoutFetching(), 5);
 	}
 
 	protected RouteBuilder createRouteBuilder() throws Exception {
 		return new RouteBuilder() {
 			public void configure() {
 				from("direct:in")
-						.to("cassandra:cassandraConnection?keyspace=simplex&table=songs&operation=selectAll");
+						.to("cassandra:cassandraConnection?keyspace=simplex&table=songs&operation=deleteWhere");
 			}
 		};
 	}

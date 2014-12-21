@@ -36,23 +36,20 @@ public class CassandraSelectAllWhereTest extends CassandraBaseTest {
 
 	@Test
 	public void testSelectWhere() throws IOException, InterruptedException {
-		CassandraBaseTest baseTest = new CassandraBaseTest();
-		baseTest.setup();
 		String body = "";
 		Map<String, Object> headers = new HashMap<String, Object>();
 		InetAddress addr = InetAddress.getByName("127.0.0.1");
 		Collection<InetAddress> collAddr = new HashSet<InetAddress>();
 		collAddr.add(addr);
-		headers.put(CassandraConstants.CONTACT_POINTS, collAddr);
-		headers.put(CassandraConstants.WHERE_COLUMN, "album");
-		headers.put(CassandraConstants.WHERE_VALUE, "The gathering");
+		headers.put(CassandraConstants.CASSANDRA_CONTACT_POINTS, collAddr);
+		headers.put(CassandraConstants.CASSANDRA_WHERE_COLUMN, "album");
+		headers.put(CassandraConstants.CASSANDRA_WHERE_VALUE, "The gathering");
 		headers.put(CassandraConstants.CASSANDRA_OPERATOR, CassandraOperator.eq);
 		ResultSet result = (ResultSet) template.requestBodyAndHeaders(
 				"direct:in", body, headers);
 		for (Row row : result) {
 			assertEquals(row.getString("album"), "The gathering");
 		}
-		baseTest.shutdown();
 	}
 
 	protected RouteBuilder createRouteBuilder() throws Exception {

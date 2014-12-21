@@ -18,38 +18,51 @@ package org.apache.camel.component.cassandra;
 
 import java.io.IOException;
 import java.net.InetAddress;
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Map;
 
 import org.apache.camel.builder.RouteBuilder;
 import org.apache.camel.component.cassandra.embedded.CassandraBaseTest;
-import org.apache.camel.test.junit4.CamelTestSupport;
 import org.junit.Test;
 
 import com.datastax.driver.core.ResultSet;
+import com.datastax.driver.core.Row;
 
-public class CassandraSelectAllTest extends CassandraBaseTest {
+public class CassandraSelectColumnTest extends CassandraBaseTest {
 
 	@Test
-	public void testInsert() throws IOException, InterruptedException {
+	public void testSelectColumn() throws IOException, InterruptedException {
+		List<String> titleList = new ArrayList<String>();
+		titleList.add("3 Days In Darkness");
+		titleList.add("DNR");
+		titleList.add("Down For Life");
+		titleList.add("True Believer");
+		titleList.add("Riding The Snake");
+		titleList.add("One for sorrow");
+		
 		String body = "";
 		Map<String, Object> headers = new HashMap<String, Object>();
 		InetAddress addr = InetAddress.getByName("127.0.0.1");
 		Collection<InetAddress> collAddr = new HashSet<InetAddress>();
 		collAddr.add(addr);
 		headers.put(CassandraConstants.CASSANDRA_CONTACT_POINTS, collAddr);
-		ResultSet result = (ResultSet) template.requestBodyAndHeaders("direct:in", body, headers); 
-		assertEquals(5, result.getAvailableWithoutFetching());
-		System.err.println(result.toString());
+		headers.put(CassandraConstants.CASSANDRA_SELECT_COLUMN, "title");
+		ResultSet result = (ResultSet) template.requestBodyAndHeaders(
+				"direct:in", body, headers);
+		for (Row row : result) {
+			assertTrue(titleList.contains(row.getString("title")));
+		}
 	}
 
 	protected RouteBuilder createRouteBuilder() throws Exception {
 		return new RouteBuilder() {
 			public void configure() {
 				from("direct:in")
-						.to("cassandra:cassandraConnection?keyspace=simplex&table=songs&operation=selectAll");
+						.to("cassandra:cassandraConnection?keyspace=simplex&table=songs&operation=selectColumn");
 			}
 		};
 	}

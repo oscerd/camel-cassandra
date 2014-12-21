@@ -164,6 +164,18 @@ public class CassandraBaseTest extends CamelTestSupport{
 		song.setTags(tags);
 		
 		songList.add(song);
+		
+		song = new Song();
+    	song.setId(6);
+    	song.setArtist("Insomnium");
+    	song.setTitle("One for sorrow");
+    	song.setAlbum("One for sorrow");
+		tags = new HashSet<String>();
+		tags.add("metal");
+		tags.add("2010");
+		song.setTags(tags);
+		
+		songList.add(song);
     }
 
     @After
