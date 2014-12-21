@@ -6,5 +6,6 @@ public enum CassandraOperations {
     selectAll,
     selectAllWhere,
     selectColumnsWhere,
-    update
+    update,
+    insert
 }

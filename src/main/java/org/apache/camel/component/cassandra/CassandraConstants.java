@@ -19,6 +19,7 @@ package org.apache.camel.component.cassandra;
 public final class CassandraConstants {
 
 	public static final String CONTACT_POINTS = "CamelCassandraContactPoints";
+	public static final String PORT = "CamelCassandraPort";
     public static final String OPERATION_HEADER = "CamelCassandraDbOperation";
     public static final String WHERE_COLUMN = "CamelCassandraWhereClause";
     public static final String WHERE_VALUE = "CamelCassandraWhereValue";
@@ -26,6 +27,7 @@ public final class CassandraConstants {
     public static final String ORDERBY_COLUMN = "CamelCassandraOrderByColumn";
     public static final String ORDER_DIRECTION = "CamelCassandraOrderDirection";
     public static final String UPDATE_OBJECT = "CamelCassandraUpdateObject";
+    public static final String INSERT_OBJECT = "CamelCassandraInsertObject";
     
     private CassandraConstants() {
     }

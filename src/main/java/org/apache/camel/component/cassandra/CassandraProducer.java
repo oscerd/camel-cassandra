@@ -36,6 +36,7 @@ import com.datastax.driver.core.Cluster;
 import com.datastax.driver.core.ResultSet;
 import com.datastax.driver.core.Session;
 import com.datastax.driver.core.Statement;
+import com.datastax.driver.core.querybuilder.Insert;
 import com.datastax.driver.core.querybuilder.QueryBuilder;
 import com.datastax.driver.core.querybuilder.Select;
 import com.datastax.driver.core.querybuilder.Update;
@@ -56,7 +57,12 @@ public class CassandraProducer extends DefaultProducer {
 	public void process(Exchange exchange) throws Exception {
 		Cluster cassandra = endpoint.getCassandraCluster();
 		Collection<InetAddress> contact = (Collection<InetAddress>) exchange.getIn().getHeader(CassandraConstants.CONTACT_POINTS);
-		cassandra = Cluster.builder().addContactPoints(contact).build();
+		String cassandra_port = (String) exchange.getIn().getHeader(CassandraConstants.PORT);
+		if (cassandra_port == null){
+			cassandra = Cluster.builder().addContactPoints(contact).build();
+		} else {
+			cassandra = Cluster.builder().addContactPoints(contact).withPort(Integer.parseInt(cassandra_port)).build();
+		}
 		Session session = cassandra.connect(endpoint.getKeyspace());
 		CassandraOperations operation = endpoint.getOperation();
 		Object header = exchange.getIn().getHeader(CassandraConstants.OPERATION_HEADER);
@@ -75,6 +81,8 @@ public class CassandraProducer extends DefaultProducer {
 		}
 		try {
 			invokeOperation(operation, exchange, session);
+			session.close();
+			cassandra.close();
 		} catch (Exception e) {
 			throw CassandraComponent.wrapInCamelCassandraException(e);
 		}
@@ -96,6 +104,9 @@ public class CassandraProducer extends DefaultProducer {
 			break;
 		case selectAllWhere:
 			doSelectWhere(exchange, CassandraOperations.selectAllWhere, session);
+			break;
+		case insert:
+			doInsert(exchange, CassandraOperations.insert, session);
 			break;
 		case update:
 			doUpdate(exchange, CassandraOperations.update, session);
@@ -152,8 +163,28 @@ public class CassandraProducer extends DefaultProducer {
 				String column = (String) exchange.getIn().getHeader(CassandraConstants.ORDERBY_COLUMN);
 				CassandraOperator orderDirection = (CassandraOperator) exchange.getIn().getHeader(CassandraConstants.ORDER_DIRECTION);
 				appendOrderBy(select, orderDirection, column);
+				System.err.println(select.toString());
 				result = session.execute(select);
 			}
+
+		Message responseMessage = prepareResponseMessage(exchange, operation);
+		responseMessage.setBody(result);
+	}
+	
+	protected void doInsert(Exchange exchange, CassandraOperations operation, Session session) throws Exception {
+		ResultSet result = null;
+		Insert insert = null;
+		HashMap<String, Object> insertingObject = (HashMap<String, Object>) exchange.getIn().getHeader(CassandraConstants.INSERT_OBJECT);
+		if (operation == CassandraOperations.insert) {
+			insert = QueryBuilder.insertInto(endpoint.getTable());
+			Iterator insertIterator = insertingObject.entrySet().iterator();
+			while(insertIterator.hasNext()){
+				Map.Entry element = (Map.Entry) insertIterator.next();
+				insert.value((String) element.getKey(), element.getValue());
+				insertIterator.remove();
+			}
+			result = session.execute(insert);
+		}
 
 		Message responseMessage = prepareResponseMessage(exchange, operation);
 		responseMessage.setBody(result);

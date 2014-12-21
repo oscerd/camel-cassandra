@@ -16,26 +16,26 @@
  */
 package org.apache.camel.component.cassandra;
 
+import java.io.IOException;
 import java.net.InetAddress;
-import java.net.UnknownHostException;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
-import java.util.List;
 import java.util.Map;
 
 import org.apache.camel.builder.RouteBuilder;
+import org.apache.camel.component.cassandra.embedded.CassandraBaseTest;
 import org.apache.camel.test.junit4.CamelTestSupport;
 import org.junit.Test;
 
 import com.datastax.driver.core.ResultSet;
-import com.datastax.driver.core.Row;
-import com.datastax.driver.core.querybuilder.Clause;
 
-public class CassandraSelectAllTest extends CamelTestSupport {
+public class CassandraSelectAllTest extends CassandraBaseTest {
 
 	@Test
-	public void testInsert() throws UnknownHostException {
+	public void testInsert() throws IOException, InterruptedException {
+		CassandraBaseTest baseTest = new CassandraBaseTest();
+		baseTest.setup();
 		String body = "";
 		Map<String, Object> headers = new HashMap<String, Object>();
 		InetAddress addr = InetAddress.getByName("127.0.0.1");
@@ -43,19 +43,10 @@ public class CassandraSelectAllTest extends CamelTestSupport {
 		collAddr.add(addr);
 		headers.put(CassandraConstants.CONTACT_POINTS, collAddr);
 		ResultSet result = (ResultSet) template.requestBodyAndHeaders("direct:in", body, headers); 
-		System.out
-		.println(String
-				.format("%-50s\t%-30s\t%-20s\t%-20s\n%s",
-						"id",
-						"title",
-						"album",
-						"artist",
-						"------------------------------------------------------+-------------------------------+------------------------+-----------"));
-		for (Row row : result) {
-			System.out.println(String.format("%-50s\t%-30s\t%-20s\t%-20s",
-					row.getUUID("id"), row.getString("title"),
-					row.getString("album"), row.getString("artist")));
-		}
+		assertEquals(5, result.getAvailableWithoutFetching());
+		System.err.println(result.toString());
+		
+		baseTest.shutdown();
 	}
 
 	protected RouteBuilder createRouteBuilder() throws Exception {
