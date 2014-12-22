@@ -22,6 +22,7 @@ public final class CassandraConstants {
 	public static final String CASSANDRA_PORT = "CamelCassandraPort";
     public static final String CASSANDRA_OPERATION_HEADER = "CamelCassandraDbOperation";
     public static final String CASSANDRA_SELECT_COLUMN = "CamelCassandraSelectColumn";
+    public static final String CASSANDRA_DELETE_COLUMN = "CamelCassandraDeleteColumn";
     public static final String CASSANDRA_WHERE_COLUMN = "CamelCassandraWhereClause";
     public static final String CASSANDRA_WHERE_VALUE = "CamelCassandraWhereValue";
     public static final String CASSANDRA_OPERATOR = "CamelCassandraOperator";
@@ -29,6 +30,8 @@ public final class CassandraConstants {
     public static final String CASSANDRA_ORDER_DIRECTION = "CamelCassandraOrderDirection";
     public static final String CASSANDRA_UPDATE_OBJECT = "CamelCassandraUpdateObject";
     public static final String CASSANDRA_INSERT_OBJECT = "CamelCassandraInsertObject";
+    public static final String CASSANDRA_COUNTER_COLUMN = "CamelCassandraCounterColumn";
+    public static final String CASSANDRA_COUNTER_VALUE = "CamelCassandraCounterValue";
     
     private CassandraConstants() {
     }

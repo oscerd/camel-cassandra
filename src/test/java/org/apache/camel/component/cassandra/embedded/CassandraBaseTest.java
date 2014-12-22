@@ -72,14 +72,14 @@ public class CassandraBaseTest extends CamelTestSupport{
 				+ "= {'class':'SimpleStrategy', 'replication_factor':3};");
 		session.execute("CREATE TABLE IF NOT EXISTS simplex.songs ("
 				+ "id int PRIMARY KEY," + "title text," + "album text,"
-				+ "artist text," + "tags set<text>," + "data blob" + ");");
+				+ "artist text," + "tags set<text>," + "data blob," + "like counter" + ");");
 		session.execute("CREATE INDEX album_idx ON simplex.songs(album);");
 		session.execute("CREATE INDEX title_idx ON simplex.songs(title);");
 		
 		PreparedStatement statement = session
 				.prepare("INSERT INTO simplex.songs "
-						+ "(id, title, album, artist, tags) "
-						+ "VALUES (?, ?, ?, ?, ?);");
+						+ "(id, title, album, artist, tags, like) "
+						+ "VALUES (?, ?, ?, ?, ?, ?);");
 
 		BoundStatement boundStatement = new BoundStatement(statement);
 		
@@ -94,7 +94,7 @@ public class CassandraBaseTest extends CamelTestSupport{
 			ResultSet res = session.execute(boundStatement.bind(
 					song.getId(),
 					song.getTitle(), song.getAlbum(),
-					song.getArtist(), song.getTags()));
+					song.getArtist(), song.getTags(), song.getCounter()));
 		}
 		
 		session.close();
@@ -114,6 +114,7 @@ public class CassandraBaseTest extends CamelTestSupport{
 		tags.add("metal");
 		tags.add("1999");
 		song.setTags(tags);
+		song.setCounter(0);
 		
 		songList.add(song);
 		
@@ -126,6 +127,7 @@ public class CassandraBaseTest extends CamelTestSupport{
 		tags.add("metal");
 		tags.add("1999");
 		song.setTags(tags);
+		song.setCounter(0);
 		
 		songList.add(song);
 		
@@ -138,6 +140,7 @@ public class CassandraBaseTest extends CamelTestSupport{
 		tags.add("metal");
 		tags.add("1999");
 		song.setTags(tags);
+		song.setCounter(0);
 		
 		songList.add(song);
 		
@@ -150,6 +153,7 @@ public class CassandraBaseTest extends CamelTestSupport{
 		tags.add("metal");
 		tags.add("1999");
 		song.setTags(tags);
+		song.setCounter(0);
 		
 		songList.add(song);
 		
@@ -162,6 +166,7 @@ public class CassandraBaseTest extends CamelTestSupport{
 		tags.add("metal");
 		tags.add("1999");
 		song.setTags(tags);
+		song.setCounter(0);
 		
 		songList.add(song);
 		
@@ -174,6 +179,7 @@ public class CassandraBaseTest extends CamelTestSupport{
 		tags.add("metal");
 		tags.add("2010");
 		song.setTags(tags);
+		song.setCounter(0);
 		
 		songList.add(song);
     }
