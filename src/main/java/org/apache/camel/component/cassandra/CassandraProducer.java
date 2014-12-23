@@ -43,7 +43,7 @@ import com.datastax.driver.core.querybuilder.Update;
 import com.datastax.driver.core.querybuilder.Update.Assignments;
 
 /**
- * The MongoDb producer.
+ * The Cassandra producer.
  */
 public class CassandraProducer extends DefaultProducer {
 	private static final Logger LOG = LoggerFactory.getLogger(CassandraProducer.class);
@@ -140,8 +140,8 @@ public class CassandraProducer extends DefaultProducer {
 		case update:
 			doUpdate(exchange, CassandraOperations.update, session);
 			break;
-		case deleteColumn:
-			doDeleteColumn(exchange, CassandraOperations.deleteColumn, session);
+		case deleteColumnWhere:
+			doDeleteColumnWhere(exchange, CassandraOperations.deleteColumnWhere, session);
 			break;
 		case deleteWhere:
 			doDeleteWhere(exchange, CassandraOperations.deleteWhere, session);
@@ -367,14 +367,14 @@ public class CassandraProducer extends DefaultProducer {
 		responseMessage.setBody(result);
 	}
 	
-	protected void doDeleteColumn(Exchange exchange, CassandraOperations operation, Session session) throws Exception {
+	protected void doDeleteColumnWhere(Exchange exchange, CassandraOperations operation, Session session) throws Exception {
 		ResultSet result = null;
 		Delete.Where delete = null;
 		String deleteColumn = (String) exchange.getIn().getHeader(CassandraConstants.CASSANDRA_DELETE_COLUMN);
 		CassandraOperator operator = (CassandraOperator) exchange.getIn().getHeader(CassandraConstants.CASSANDRA_OPERATOR);
 		String whereColumn = (String) exchange.getIn().getHeader(CassandraConstants.CASSANDRA_WHERE_COLUMN);
 		Object whereValue = (Object) exchange.getIn().getHeader(CassandraConstants.CASSANDRA_WHERE_VALUE);
-		if (operation == CassandraOperations.deleteColumn) {
+		if (operation == CassandraOperations.deleteColumnWhere) {
 			delete = QueryBuilder.delete().column(deleteColumn).from(endpoint.getTable()).where();
 			if (whereColumn != null && whereValue != null){
 				switch (operator) {
@@ -411,9 +411,6 @@ public class CassandraProducer extends DefaultProducer {
 		Assignments update = null;
 		String counterColumn = (String) exchange.getIn().getHeader(CassandraConstants.CASSANDRA_COUNTER_COLUMN);
 		long counterValue = (long) exchange.getIn().getHeader(CassandraConstants.CASSANDRA_COUNTER_VALUE);
-		if (counterValue == 0L){
-			counterValue = 1;
-		}
 		CassandraOperator operator = (CassandraOperator) exchange.getIn().getHeader(CassandraConstants.CASSANDRA_OPERATOR);
 		String whereColumn = (String) exchange.getIn().getHeader(CassandraConstants.CASSANDRA_WHERE_COLUMN);
 		Object whereValue = (Object) exchange.getIn().getHeader(CassandraConstants.CASSANDRA_WHERE_VALUE);
@@ -454,9 +451,6 @@ public class CassandraProducer extends DefaultProducer {
 		Assignments update = null;
 		String counterColumn = (String) exchange.getIn().getHeader(CassandraConstants.CASSANDRA_COUNTER_COLUMN);
 		long counterValue = (long) exchange.getIn().getHeader(CassandraConstants.CASSANDRA_COUNTER_VALUE);
-		if (ObjectHelper.isEmpty(counterValue)){
-			counterValue = 1;
-		}
 		CassandraOperator operator = (CassandraOperator) exchange.getIn().getHeader(CassandraConstants.CASSANDRA_OPERATOR);
 		String whereColumn = (String) exchange.getIn().getHeader(CassandraConstants.CASSANDRA_WHERE_COLUMN);
 		Object whereValue = (Object) exchange.getIn().getHeader(CassandraConstants.CASSANDRA_WHERE_VALUE);

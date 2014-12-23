@@ -41,8 +41,7 @@ public class CassandraSelectAllTest extends CassandraBaseTest {
 		collAddr.add(addr);
 		headers.put(CassandraConstants.CASSANDRA_CONTACT_POINTS, collAddr);
 		ResultSet result = (ResultSet) template.requestBodyAndHeaders("direct:in", body, headers); 
-		assertEquals(5, result.getAvailableWithoutFetching());
-		System.err.println(result.toString());
+		assertEquals(6, result.getAvailableWithoutFetching());
 	}
 
 	protected RouteBuilder createRouteBuilder() throws Exception {

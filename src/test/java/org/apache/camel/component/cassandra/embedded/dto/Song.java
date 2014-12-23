@@ -11,7 +11,6 @@ public class Song {
 	private String artist;
 	private Set<String> tags;
 	private ByteBuffer blob;
-	private long counter;
 
 	public int getId() {
 		return id;
@@ -61,14 +60,6 @@ public class Song {
 		this.blob = blob;
 	}
 
-	public long getCounter() {
-		return counter;
-	}
-
-	public void setCounter(long counter) {
-		this.counter = counter;
-	}
-
 	@Override
 	public int hashCode() {
 		final int prime = 31;
@@ -76,7 +67,6 @@ public class Song {
 		result = prime * result + ((album == null) ? 0 : album.hashCode());
 		result = prime * result + ((artist == null) ? 0 : artist.hashCode());
 		result = prime * result + ((blob == null) ? 0 : blob.hashCode());
-		result = prime * result + (int) (counter ^ (counter >>> 32));
 		result = prime * result + id;
 		result = prime * result + ((tags == null) ? 0 : tags.hashCode());
 		result = prime * result + ((title == null) ? 0 : title.hashCode());
@@ -107,8 +97,6 @@ public class Song {
 				return false;
 		} else if (!blob.equals(other.blob))
 			return false;
-		if (counter != other.counter)
-			return false;
 		if (id != other.id)
 			return false;
 		if (tags == null) {
@@ -128,7 +116,7 @@ public class Song {
 	public String toString() {
 		return "Song [id=" + id + ", title=" + title + ", album=" + album
 				+ ", artist=" + artist + ", tags=" + tags + ", blob=" + blob
-				+ ", counter=" + counter + "]";
+				+ "]";
 	}
 
 }

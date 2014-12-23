@@ -35,10 +35,10 @@ import com.datastax.driver.core.Session;
 import com.datastax.driver.core.querybuilder.QueryBuilder;
 import com.datastax.driver.core.querybuilder.Select;
 
-public class CassandraDeleteColumnTest extends CassandraBaseTest {
+public class CassandraDeleteColumnWhereTest extends CassandraBaseTest {
 
 	@Test
-	public void testDeleteColumn() throws IOException, InterruptedException {
+	public void testDeleteColumnWhere() throws IOException, InterruptedException {
 		
 		String body = "";
 		Map<String, Object> headers = new HashMap<String, Object>();
@@ -68,7 +68,7 @@ public class CassandraDeleteColumnTest extends CassandraBaseTest {
 		return new RouteBuilder() {
 			public void configure() {
 				from("direct:in")
-						.to("cassandra:cassandraConnection?keyspace=simplex&table=songs&operation=deleteColumn");
+						.to("cassandra:cassandraConnection?keyspace=simplex&table=songs&operation=deleteColumnWhere");
 			}
 		};
 	}

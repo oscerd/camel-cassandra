@@ -7,7 +7,7 @@ public enum CassandraOperations {
     selectColumnWhere,
     update,
     insert,
-    deleteColumn,
+    deleteColumnWhere,
     deleteWhere,
     incrCounter,
     decrCounter

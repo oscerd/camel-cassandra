@@ -16,6 +16,7 @@ import java.util.concurrent.CountDownLatch;
 import org.apache.camel.component.cassandra.embedded.dto.Song;
 import org.apache.camel.test.junit4.CamelTestSupport;
 import org.junit.After;
+import org.junit.AfterClass;
 import org.junit.Before;
 import org.junit.BeforeClass;
 
@@ -36,8 +37,8 @@ public class CassandraBaseCounterTest extends CamelTestSupport{
 
 	private Farsandra fs;
 
-	@Before
-    public void setup() throws IOException, InterruptedException {
+	@Override
+    public void doPostSetup() {
 
     	fs = new Farsandra();
     	fs.withVersion("2.0.3");
@@ -59,13 +60,17 @@ public class CassandraBaseCounterTest extends CamelTestSupport{
     	fs.getManager().addProcessHandler(new ProcessHandler() {
     	    @Override
     	    public void handleTermination(int exitValue) {
-    	        System.out.println("Cassandra terminated with exit value: " + exitValue);
     	        started.countDown();
     	    }
     	});
     	fs.start();
-    	started.await();
-    	Thread.sleep(3000);
+    	try {
+			started.await();
+	    	Thread.sleep(3000);
+		} catch (InterruptedException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
 
         Cluster cluster = Cluster.builder().addContactPoint("127.0.0.1").build();
 		
@@ -86,13 +91,20 @@ public class CassandraBaseCounterTest extends CamelTestSupport{
 		session.close();
 		cluster.close();
 		
-		Thread.sleep(5 * 1000);
+		try {
+			Thread.sleep(5 * 1000);
+		} catch (InterruptedException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
 
     }
 
-    @After
-    public void shutdown() throws InterruptedException {
+    @Override
+    public void tearDown() throws Exception {
         //Shutting down everything in an orderly fashion
 		fs.getManager().destroy();
+		Thread.sleep(10000);
+		super.tearDown();
     }
 }

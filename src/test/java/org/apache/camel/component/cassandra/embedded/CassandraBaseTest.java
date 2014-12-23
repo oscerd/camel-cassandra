@@ -16,6 +16,7 @@ import java.util.concurrent.CountDownLatch;
 import org.apache.camel.component.cassandra.embedded.dto.Song;
 import org.apache.camel.test.junit4.CamelTestSupport;
 import org.junit.After;
+import org.junit.AfterClass;
 import org.junit.Before;
 import org.junit.BeforeClass;
 
@@ -33,8 +34,8 @@ public class CassandraBaseTest extends CamelTestSupport{
 
 	private Farsandra fs;
 
-	@Before
-    public void setup() throws IOException, InterruptedException {
+	@Override
+    public void doPostSetup() {
 
     	fs = new Farsandra();
     	fs.withVersion("2.0.3");
@@ -56,13 +57,17 @@ public class CassandraBaseTest extends CamelTestSupport{
     	fs.getManager().addProcessHandler(new ProcessHandler() {
     	    @Override
     	    public void handleTermination(int exitValue) {
-    	        System.out.println("Cassandra terminated with exit value: " + exitValue);
     	        started.countDown();
     	    }
     	});
     	fs.start();
-    	started.await();
-    	Thread.sleep(10000);
+    	try {
+			started.await();
+	    	Thread.sleep(10000);
+		} catch (InterruptedException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
 
         Cluster cluster = Cluster.builder().addContactPoint("127.0.0.1").build();
 		
@@ -72,14 +77,14 @@ public class CassandraBaseTest extends CamelTestSupport{
 				+ "= {'class':'SimpleStrategy', 'replication_factor':3};");
 		session.execute("CREATE TABLE IF NOT EXISTS simplex.songs ("
 				+ "id int PRIMARY KEY," + "title text," + "album text,"
-				+ "artist text," + "tags set<text>," + "data blob," + "like counter" + ");");
+				+ "artist text," + "tags set<text>," + "data blob," + ");");
 		session.execute("CREATE INDEX album_idx ON simplex.songs(album);");
 		session.execute("CREATE INDEX title_idx ON simplex.songs(title);");
 		
 		PreparedStatement statement = session
 				.prepare("INSERT INTO simplex.songs "
-						+ "(id, title, album, artist, tags, like) "
-						+ "VALUES (?, ?, ?, ?, ?, ?);");
+						+ "(id, title, album, artist, tags) "
+						+ "VALUES (?, ?, ?, ?, ?);");
 
 		BoundStatement boundStatement = new BoundStatement(statement);
 		
@@ -94,13 +99,18 @@ public class CassandraBaseTest extends CamelTestSupport{
 			ResultSet res = session.execute(boundStatement.bind(
 					song.getId(),
 					song.getTitle(), song.getAlbum(),
-					song.getArtist(), song.getTags(), song.getCounter()));
+					song.getArtist(), song.getTags()));
 		}
 		
 		session.close();
 		cluster.close();
 		
-		Thread.sleep(5 * 1000);
+		try {
+			Thread.sleep(5 * 1000);
+		} catch (InterruptedException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
 
     }
     
@@ -114,7 +124,6 @@ public class CassandraBaseTest extends CamelTestSupport{
 		tags.add("metal");
 		tags.add("1999");
 		song.setTags(tags);
-		song.setCounter(0);
 		
 		songList.add(song);
 		
@@ -127,7 +136,6 @@ public class CassandraBaseTest extends CamelTestSupport{
 		tags.add("metal");
 		tags.add("1999");
 		song.setTags(tags);
-		song.setCounter(0);
 		
 		songList.add(song);
 		
@@ -140,7 +148,6 @@ public class CassandraBaseTest extends CamelTestSupport{
 		tags.add("metal");
 		tags.add("1999");
 		song.setTags(tags);
-		song.setCounter(0);
 		
 		songList.add(song);
 		
@@ -153,7 +160,6 @@ public class CassandraBaseTest extends CamelTestSupport{
 		tags.add("metal");
 		tags.add("1999");
 		song.setTags(tags);
-		song.setCounter(0);
 		
 		songList.add(song);
 		
@@ -166,7 +172,6 @@ public class CassandraBaseTest extends CamelTestSupport{
 		tags.add("metal");
 		tags.add("1999");
 		song.setTags(tags);
-		song.setCounter(0);
 		
 		songList.add(song);
 		
@@ -179,14 +184,15 @@ public class CassandraBaseTest extends CamelTestSupport{
 		tags.add("metal");
 		tags.add("2010");
 		song.setTags(tags);
-		song.setCounter(0);
 		
 		songList.add(song);
     }
 
-    @After
-    public void shutdown() throws InterruptedException {
+    @Override
+    public void tearDown() throws Exception {
         //Shutting down everything in an orderly fashion
 		fs.getManager().destroy();
+    	Thread.sleep(10000);
+		super.tearDown();
     }
 }
