@@ -16,12 +16,12 @@
  */
 package org.apache.camel.component.cassandra;
 
+import com.datastax.driver.core.Cluster;
+
 import org.apache.camel.Consumer;
 import org.apache.camel.Processor;
 import org.apache.camel.Producer;
 import org.apache.camel.impl.DefaultEndpoint;
-
-import com.datastax.driver.core.Cluster;
 
 /**
  * Represents a MongoDb endpoint. It is responsible for creating
@@ -31,66 +31,69 @@ import com.datastax.driver.core.Cluster;
  */
 public class CassandraEndpoint extends DefaultEndpoint {
 
-	private Cluster cassandraCluster;
-	private String keyspace;
-	private String table;
-	private CassandraOperations operation;
+    private Cluster cassandraCluster;
+    private String keyspace;
+    private String table;
+    private CassandraOperations operation;
 
-	public CassandraEndpoint() {
-	}
+    public CassandraEndpoint() {
+    }
 
-	public CassandraEndpoint(String uri, CassandraComponent component,
-			String remanining) {
-		super(uri, component);
-	}
+    public CassandraEndpoint(String uri, CassandraComponent component, String remanining) {
+        super(uri, component);
+    }
 
-	@Override
-	public Producer createProducer() throws Exception {
-		return new CassandraProducer(this);
-	}
+    @Override
+    public Producer createProducer() throws Exception {
+        return new CassandraProducer(this);
+    }
 
-	@Override
-	public Consumer createConsumer(Processor processor) throws Exception {
-		// TODO Auto-generated method stub
-		return null;
-	}
+    @Override
+    public Consumer createConsumer(Processor processor) throws Exception {
+        // TODO Auto-generated method stub
+        return null;
+    }
 
-	@Override
-	public boolean isSingleton() {
-		// TODO Auto-generated method stub
-		return false;
-	}
+    @Override
+    public boolean isSingleton() {
+        // TODO Auto-generated method stub
+        return false;
+    }
 
-	public Cluster getCassandraCluster() {
-		return cassandraCluster;
-	}
+    public Cluster getCassandraCluster() {
+        return cassandraCluster;
+    }
 
-	public void setCassandraCluster(Cluster cassandraCluster) {
-		this.cassandraCluster = cassandraCluster;
-	}
+    public void setCassandraCluster(Cluster cassandraCluster) {
+        this.cassandraCluster = cassandraCluster;
+    }
 
-	public String getKeyspace() {
-		return keyspace;
-	}
+    public String getKeyspace() {
+        return keyspace;
+    }
 
-	public void setKeyspace(String keyspace) {
-		this.keyspace = keyspace;
-	}
+    public void setKeyspace(String keyspace) {
+        this.keyspace = keyspace;
+    }
 
-	public String getTable() {
-		return table;
-	}
+    public String getTable() {
+        return table;
+    }
 
-	public void setTable(String table) {
-		this.table = table;
-	}
+    public void setTable(String table) {
+        this.table = table;
+    }
 
-	public CassandraOperations getOperation() {
-		return operation;
-	}
+    public CassandraOperations getOperation() {
+        return operation;
+    }
 
-	public void setOperation(CassandraOperations operation) {
-		this.operation = operation;
-	}
+    public void setOperation(String operation) throws CassandraException {
+        try {
+            this.operation = CassandraOperations.valueOf(operation);
+        } catch (IllegalArgumentException e) {
+            throw new CassandraException("Operation not supported", e);
+        }
+    }
 
 }

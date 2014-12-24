@@ -17,9 +17,8 @@
 package org.apache.camel.component.cassandra;
 
 public final class CassandraConstants {
-
-	public static final String CASSANDRA_CONTACT_POINTS = "CamelCassandraContactPoints";
-	public static final String CASSANDRA_PORT = "CamelCassandraPort";
+    public static final String CASSANDRA_CONTACT_POINTS = "CamelCassandraContactPoints";
+    public static final String CASSANDRA_PORT = "CamelCassandraPort";
     public static final String CASSANDRA_OPERATION_HEADER = "CamelCassandraDbOperation";
     public static final String CASSANDRA_SELECT_COLUMN = "CamelCassandraSelectColumn";
     public static final String CASSANDRA_DELETE_COLUMN = "CamelCassandraDeleteColumn";
@@ -32,7 +31,7 @@ public final class CassandraConstants {
     public static final String CASSANDRA_INSERT_OBJECT = "CamelCassandraInsertObject";
     public static final String CASSANDRA_COUNTER_COLUMN = "CamelCassandraCounterColumn";
     public static final String CASSANDRA_COUNTER_VALUE = "CamelCassandraCounterValue";
-    
+   
     private CassandraConstants() {
     }
 

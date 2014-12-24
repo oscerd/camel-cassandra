@@ -17,47 +17,42 @@
 package org.apache.camel.component.cassandra;
 
 import java.io.IOException;
-import java.net.InetAddress;
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
-
-import org.apache.camel.Message;
-import org.apache.camel.builder.RouteBuilder;
-import org.apache.camel.component.cassandra.embedded.CassandraBaseTest;
-import org.junit.Test;
 
 import com.datastax.driver.core.ResultSet;
 import com.datastax.driver.core.Row;
 
+import org.apache.camel.builder.RouteBuilder;
+import org.apache.camel.component.cassandra.embedded.CassandraBaseTest;
+import org.junit.Test;
+
 public class CassandraPlainQueryTest extends CassandraBaseTest {
 
-	@Test
-	public void testPlainQuery() throws IOException, InterruptedException {
-		
-		String body = "SELECT id, album, title FROM songs LIMIT 2";
-		Map<String, Object> headers = new HashMap<String, Object>();
-		InetAddress addr = InetAddress.getByName("127.0.0.1");
-		Collection<InetAddress> collAddr = new HashSet<InetAddress>();
-		collAddr.add(addr);
-		headers.put(CassandraConstants.CASSANDRA_CONTACT_POINTS, collAddr);
-		Object result = template.requestBodyAndHeaders(
-				"direct:in", body, headers);
-		assertTrue(result instanceof ResultSet);
-		for (Row row : (ResultSet) result) {
-			System.err.println(row.getInt("id") + " - " + row.getString("album") + " - " + row.getString("title"));
-		}
-	}
+    @Test
+    public void testPlainQuery() throws IOException, InterruptedException {
+        String body = "SELECT id, album, title FROM songs";
+        Map<String, Object> headers = new HashMap<String, Object>();
+        String addr = "127.0.0.1";
+        List<String> collAddr = new ArrayList<String>();
+        collAddr.add(addr);
+        headers.put(CassandraConstants.CASSANDRA_CONTACT_POINTS, collAddr);
+        ResultSet result = (ResultSet) template.requestBodyAndHeaders("direct:in", body, headers);
+        assertEquals(result.getAvailableWithoutFetching(), 6);
+        for (Row row : (ResultSet) result) {
+            assertTrue(row.getString("album") != null); 
+            assertTrue(row.getString("title") != null); 
+        }
+    }
 
-	protected RouteBuilder createRouteBuilder() throws Exception {
-		return new RouteBuilder() {
-			public void configure() {
-				from("direct:in")
-						.to("cassandra:cassandraConnection?keyspace=simplex");
-			}
-		};
-	}
+    protected RouteBuilder createRouteBuilder() throws Exception {
+        return new RouteBuilder() {
+            public void configure() {
+                from("direct:in")
+                    .to("cassandra:cassandraConnection?keyspace=simplex");
+            }
+        };
+    }
 }

@@ -17,49 +17,59 @@
 package org.apache.camel.component.cassandra;
 
 import java.io.IOException;
-import java.net.InetAddress;
-import java.net.UnknownHostException;
-import java.util.Collection;
+import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.HashSet;
+import java.util.List;
 import java.util.Map;
-import java.util.UUID;
+
+import com.datastax.driver.core.Cluster;
+import com.datastax.driver.core.ResultSet;
+import com.datastax.driver.core.Row;
+import com.datastax.driver.core.Session;
+import com.datastax.driver.core.querybuilder.QueryBuilder;
+import com.datastax.driver.core.querybuilder.Select;
 
 import org.apache.camel.builder.RouteBuilder;
 import org.apache.camel.component.cassandra.embedded.CassandraBaseTest;
-import org.apache.camel.test.junit4.CamelTestSupport;
 import org.junit.Test;
-
-import com.datastax.driver.core.ResultSet;
-import com.datastax.driver.core.Row;
 
 public class CassandraUpdateTest extends CassandraBaseTest {
 
-	@Test
-	public void testUpdate() throws IOException, InterruptedException {
-		String body = "";
-		Map<String, Object> headers = new HashMap<String, Object>();
-		InetAddress addr = InetAddress.getByName("127.0.0.1");
-		Collection<InetAddress> collAddr = new HashSet<InetAddress>();
-		collAddr.add(addr);
-		headers.put(CassandraConstants.CASSANDRA_CONTACT_POINTS, collAddr);
-		HashMap<String, Object> updatingObject = new HashMap<String, Object>();
-		updatingObject.put("album", "Demonic");
-		updatingObject.put("title", "Demonic Refusal");
-		headers.put(CassandraConstants.CASSANDRA_WHERE_COLUMN, "id");
-		headers.put(CassandraConstants.CASSANDRA_WHERE_VALUE, 1);
-		headers.put(CassandraConstants.CASSANDRA_OPERATOR, CassandraOperator.eq);
-		headers.put(CassandraConstants.CASSANDRA_UPDATE_OBJECT, updatingObject);
-		ResultSet result = (ResultSet) template.requestBodyAndHeaders("direct:in", body, headers);
-		assertEquals(result.wasApplied(), true);
-	}
+    @Test
+    public void testUpdate() throws IOException, InterruptedException {
+        String body = "";
+        Map<String, Object> headers = new HashMap<String, Object>();
+        String addr = "127.0.0.1";
+        List<String> collAddr = new ArrayList<String>();
+        collAddr.add(addr);
+        headers.put(CassandraConstants.CASSANDRA_CONTACT_POINTS, collAddr);
+        HashMap<String, Object> updatingObject = new HashMap<String, Object>();
+        updatingObject.put("album", "Low");
+        updatingObject.put("title", "Low");
+        headers.put(CassandraConstants.CASSANDRA_WHERE_COLUMN, "id");
+        headers.put(CassandraConstants.CASSANDRA_WHERE_VALUE, 1);
+        headers.put(CassandraConstants.CASSANDRA_OPERATOR, "eq");
+        headers.put(CassandraConstants.CASSANDRA_UPDATE_OBJECT, updatingObject);
+        ResultSet result = (ResultSet) template.requestBodyAndHeaders("direct:in", body, headers);
+        assertEquals(result.wasApplied(), true);
+        Cluster cluster = Cluster.builder().addContactPoint("127.0.0.1").build();
+        Session session = cluster.connect("simplex");
+        Select.Where select = QueryBuilder.select().all().from("counter").where(QueryBuilder.eq("id", 1));
+        result = session.execute(select);
+        session.close();
+        cluster.close();
+        for (Row row : (ResultSet) result) {
+            assertEquals(row.getString("album"), "Low");
+            assertEquals(row.getString("title"), "Low");
+        }
+    }
 
-	protected RouteBuilder createRouteBuilder() throws Exception {
-		return new RouteBuilder() {
-			public void configure() {
-				from("direct:in")
-						.to("cassandra:simplex?keyspace=simplex&table=songs&operation=update");
-			}
-		};
-	}
+    protected RouteBuilder createRouteBuilder() throws Exception {
+        return new RouteBuilder() {
+            public void configure() {
+                from("direct:in")
+                    .to("cassandra:simplex?keyspace=simplex&table=songs&operation=update");
+            }
+        };
+    }
 }

@@ -17,47 +17,43 @@
 package org.apache.camel.component.cassandra;
 
 import java.io.IOException;
-import java.net.InetAddress;
-import java.net.UnknownHostException;
-import java.util.Collection;
+import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.HashSet;
+import java.util.List;
 import java.util.Map;
-
-import org.apache.camel.builder.RouteBuilder;
-import org.apache.camel.component.cassandra.embedded.CassandraBaseTest;
-import org.apache.camel.test.junit4.CamelTestSupport;
-import org.junit.Test;
 
 import com.datastax.driver.core.ResultSet;
 import com.datastax.driver.core.Row;
 
+import org.apache.camel.builder.RouteBuilder;
+import org.apache.camel.component.cassandra.embedded.CassandraBaseTest;
+import org.junit.Test;
+
 public class CassandraSelectAllWhereTest extends CassandraBaseTest {
 
-	@Test
-	public void testSelectWhere() throws IOException, InterruptedException {
-		String body = "";
-		Map<String, Object> headers = new HashMap<String, Object>();
-		InetAddress addr = InetAddress.getByName("127.0.0.1");
-		Collection<InetAddress> collAddr = new HashSet<InetAddress>();
-		collAddr.add(addr);
-		headers.put(CassandraConstants.CASSANDRA_CONTACT_POINTS, collAddr);
-		headers.put(CassandraConstants.CASSANDRA_WHERE_COLUMN, "album");
-		headers.put(CassandraConstants.CASSANDRA_WHERE_VALUE, "The gathering");
-		headers.put(CassandraConstants.CASSANDRA_OPERATOR, CassandraOperator.eq);
-		ResultSet result = (ResultSet) template.requestBodyAndHeaders(
-				"direct:in", body, headers);
-		for (Row row : result) {
-			assertEquals(row.getString("album"), "The gathering");
-		}
-	}
+    @Test
+    public void testSelectWhere() throws IOException, InterruptedException {
+        String body = "";
+        Map<String, Object> headers = new HashMap<String, Object>();
+        String addr = "127.0.0.1";
+        List<String> collAddr = new ArrayList<String>();
+        collAddr.add(addr);
+        headers.put(CassandraConstants.CASSANDRA_CONTACT_POINTS, collAddr);
+        headers.put(CassandraConstants.CASSANDRA_WHERE_COLUMN, "album");
+        headers.put(CassandraConstants.CASSANDRA_WHERE_VALUE, "The gathering");
+        headers.put(CassandraConstants.CASSANDRA_OPERATOR, "eq");
+        ResultSet result = (ResultSet) template.requestBodyAndHeaders("direct:in", body, headers);
+        for (Row row : result) {
+            assertEquals(row.getString("album"), "The gathering");
+        }
+    }
 
-	protected RouteBuilder createRouteBuilder() throws Exception {
-		return new RouteBuilder() {
-			public void configure() {
-				from("direct:in")
-						.to("cassandra:cassandraConnection?keyspace=simplex&table=songs&operation=selectAllWhere");
-			}
-		};
-	}
+    protected RouteBuilder createRouteBuilder() throws Exception {
+        return new RouteBuilder() {
+            public void configure() {
+                from("direct:in")
+                    .to("cassandra:cassandraConnection?keyspace=simplex&table=songs&operation=selectAllWhere");
+            }
+        };
+    }
 }
