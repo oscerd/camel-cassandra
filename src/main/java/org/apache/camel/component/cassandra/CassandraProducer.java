@@ -367,188 +367,186 @@ public class CassandraProducer extends DefaultProducer {
         Message responseMessage = prepareResponseMessage(exchange);
         responseMessage.setBody(result);
     }
-	
-	protected void doDeleteColumnWhere(Exchange exchange, CassandraOperations operation, Session session) throws Exception {
-		ResultSet result = null;
-		Delete.Where delete = null;
-		String deleteColumn = (String) exchange.getIn().getHeader(CassandraConstants.CASSANDRA_DELETE_COLUMN);
-		String cassOperator = (String) exchange.getIn().getHeader(CassandraConstants.CASSANDRA_OPERATOR);
-		CassandraOperator operator = getCassandraOperator(cassOperator);
-		String whereColumn = (String) exchange.getIn().getHeader(CassandraConstants.CASSANDRA_WHERE_COLUMN);
-		Object whereValue = (Object) exchange.getIn().getHeader(CassandraConstants.CASSANDRA_WHERE_VALUE);
-		if (operation == CassandraOperations.deleteColumnWhere) {
-			delete = QueryBuilder.delete().column(deleteColumn).from(endpoint.getTable()).where();
-			if (whereColumn != null && whereValue != null){
-				switch (operator) {
-					case eq:
-						delete.and(QueryBuilder.eq(whereColumn, whereValue));
-						break;
-					case gt:
-						delete.and(QueryBuilder.gt(whereColumn, whereValue));
-						break;
-					case gte:
-						delete.and(QueryBuilder.gte(whereColumn, whereValue));
-						break;
-					case lt:
-						delete.and(QueryBuilder.lt(whereColumn, whereValue));
-						break;
-					case lte:
-						delete.and(QueryBuilder.gte(whereColumn, whereValue));
-						break;
-					case in:
-						delete.and(QueryBuilder.in(whereColumn, (List<Object>)whereValue));
-						break;
-					default:
-						break;
-				}
-			}
-			result = session.execute(delete);
-			}
-		Message responseMessage = prepareResponseMessage(exchange);
-		responseMessage.setBody(result);
-	}
-	
-	protected void doIncrCounter(Exchange exchange, CassandraOperations operation, Session session) throws Exception {
-		ResultSet result = null;
-		Assignments update = null;
-		String counterColumn = (String) exchange.getIn().getHeader(CassandraConstants.CASSANDRA_COUNTER_COLUMN);
-		long counterValue = (long) exchange.getIn().getHeader(CassandraConstants.CASSANDRA_COUNTER_VALUE);
-		String cassOperator = (String) exchange.getIn().getHeader(CassandraConstants.CASSANDRA_OPERATOR);
-		CassandraOperator operator = getCassandraOperator(cassOperator);
-		String whereColumn = (String) exchange.getIn().getHeader(CassandraConstants.CASSANDRA_WHERE_COLUMN);
-		Object whereValue = (Object) exchange.getIn().getHeader(CassandraConstants.CASSANDRA_WHERE_VALUE);
-		if (operation == CassandraOperations.incrCounter) {
-			update = QueryBuilder.update(endpoint.getTable()).with(QueryBuilder.incr(counterColumn, counterValue));
-			if (whereColumn != null && whereValue != null){
-				switch (operator) {
-					case eq:
-						update.where(QueryBuilder.eq(whereColumn, whereValue));
-						break;
-					case gt:
-						update.where(QueryBuilder.gt(whereColumn, whereValue));
-						break;
-					case gte:
-						update.where(QueryBuilder.gte(whereColumn, whereValue));
-						break;
-					case lt:
-						update.where(QueryBuilder.lt(whereColumn, whereValue));
-						break;
-					case lte:
-						update.where(QueryBuilder.gte(whereColumn, whereValue));
-						break;
-					case in:
-						update.where(QueryBuilder.in(whereColumn, (List<Object>)whereValue));
-						break;
-					default:
-						break;
-				}
-			}
-			result = session.execute(update);
-			}
-		Message responseMessage = prepareResponseMessage(exchange);
-		responseMessage.setBody(result);
-	}
-	
-	protected void doDecrCounter(Exchange exchange, CassandraOperations operation, Session session) throws Exception {
-		ResultSet result = null;
-		Assignments update = null;
-		String counterColumn = (String) exchange.getIn().getHeader(CassandraConstants.CASSANDRA_COUNTER_COLUMN);
-		long counterValue = (long) exchange.getIn().getHeader(CassandraConstants.CASSANDRA_COUNTER_VALUE);
-		String cassOperator = (String) exchange.getIn().getHeader(CassandraConstants.CASSANDRA_OPERATOR);
-		CassandraOperator operator = getCassandraOperator(cassOperator);
-		String whereColumn = (String) exchange.getIn().getHeader(CassandraConstants.CASSANDRA_WHERE_COLUMN);
-		Object whereValue = (Object) exchange.getIn().getHeader(CassandraConstants.CASSANDRA_WHERE_VALUE);
-		if (operation == CassandraOperations.decrCounter) {
-			update = QueryBuilder.update(endpoint.getTable()).with(QueryBuilder.decr(counterColumn, counterValue));
-			if (whereColumn != null && whereValue != null){
-				switch (operator) {
-					case eq:
-						update.where(QueryBuilder.eq(whereColumn, whereValue));
-						break;
-					case gt:
-						update.where(QueryBuilder.gt(whereColumn, whereValue));
-						break;
-					case gte:
-						update.where(QueryBuilder.gte(whereColumn, whereValue));
-						break;
-					case lt:
-						update.where(QueryBuilder.lt(whereColumn, whereValue));
-						break;
-					case lte:
-						update.where(QueryBuilder.gte(whereColumn, whereValue));
-						break;
-					case in:
-						update.where(QueryBuilder.in(whereColumn, (List<Object>)whereValue));
-						break;
-					default:
-						break;
-				}
-			}
-			result = session.execute(update);
-			}
-		Message responseMessage = prepareResponseMessage(exchange);
-		responseMessage.setBody(result);
-	}
-	
-	private void appendOrderBy(Select.Where select, CassandraOperator orderDirection, String columnName){
-		if (columnName != null && orderDirection != null){
-				if (orderDirection.equals(CassandraOperator.asc)){
-					select.orderBy(QueryBuilder.asc((String) columnName));
-				} else {
-					select.orderBy(QueryBuilder.desc((String) columnName));
-				}
-			}
-	}
-	
-	private Message prepareResponseMessage(Exchange exchange) {
-		Message answer = exchange.getOut();
-		MessageHelper.copyHeaders(exchange.getIn(), answer, false);
-		answer.setBody(exchange.getIn().getBody());
-		return answer;
-	}
-	
-	private Collection<InetAddress> getInetAddress(List<String> addr) throws UnknownHostException {
-		Collection<InetAddress> coll = new HashSet<InetAddress>();
-		Iterator it = addr.iterator();
-		while (it.hasNext()){
-			String address = (String) it.next();
-			coll.add(InetAddress.getByName(address));
-		}
-		return coll;
-	}
-	
-	private CassandraOperator getCassandraOperator(String operator) throws UnknownHostException {
-		CassandraOperator cassOperator = null;
-		switch (operator) {
-		case "eq":
-			cassOperator = CassandraOperator.eq;
-			break;
-		case "gt":
-			cassOperator = CassandraOperator.gt;
-			break;
-		case "gte":
-			cassOperator = CassandraOperator.gte;
-			break;
-		case "lt":
-			cassOperator = CassandraOperator.lt;
-			break;
-		case "lte":
-			cassOperator = CassandraOperator.lte;
-			break;
-		case "in":
-			cassOperator = CassandraOperator.in;
-			break;
-		case "asc":
-			cassOperator = CassandraOperator.asc;
-			break;
-		case "desc":
-			cassOperator = CassandraOperator.desc;
-			break;			
-		default:
-			break;
-	}
-			
-	return cassOperator;	
-	}
 
+    protected void doDeleteColumnWhere(Exchange exchange, CassandraOperations operation, Session session) throws Exception {
+        ResultSet result = null;
+        Delete.Where delete = null;
+        String deleteColumn = (String) exchange.getIn().getHeader(CassandraConstants.CASSANDRA_DELETE_COLUMN);
+        String cassOperator = (String) exchange.getIn().getHeader(CassandraConstants.CASSANDRA_OPERATOR);
+        CassandraOperator operator = getCassandraOperator(cassOperator);
+        String whereColumn = (String) exchange.getIn().getHeader(CassandraConstants.CASSANDRA_WHERE_COLUMN);
+        Object whereValue = (Object) exchange.getIn().getHeader(CassandraConstants.CASSANDRA_WHERE_VALUE);
+        if (operation == CassandraOperations.deleteColumnWhere) {
+            delete = QueryBuilder.delete().column(deleteColumn).from(endpoint.getTable()).where();
+            if (whereColumn != null && whereValue != null) {
+                switch (operator) {
+                case eq:
+                    delete.and(QueryBuilder.eq(whereColumn, whereValue));
+                    break;
+                case gt:
+                    delete.and(QueryBuilder.gt(whereColumn, whereValue));
+                    break;
+                case gte:
+                    delete.and(QueryBuilder.gte(whereColumn, whereValue));
+                    break;
+                case lt:
+                    delete.and(QueryBuilder.lt(whereColumn, whereValue));
+                    break;
+                case lte:
+                    delete.and(QueryBuilder.gte(whereColumn, whereValue));
+                    break;
+                case in:
+                    delete.and(QueryBuilder.in(whereColumn, (List<Object>)whereValue));
+                    break;
+                default:
+                    break;
+                }
+            }
+            result = session.execute(delete);
+        }
+        Message responseMessage = prepareResponseMessage(exchange);
+        responseMessage.setBody(result);
+    }
+
+    protected void doIncrCounter(Exchange exchange, CassandraOperations operation, Session session) throws Exception {
+        ResultSet result = null;
+        Assignments update = null;
+        String counterColumn = (String) exchange.getIn().getHeader(CassandraConstants.CASSANDRA_COUNTER_COLUMN);
+        long counterValue = (long) exchange.getIn().getHeader(CassandraConstants.CASSANDRA_COUNTER_VALUE);
+        String cassOperator = (String) exchange.getIn().getHeader(CassandraConstants.CASSANDRA_OPERATOR);
+        CassandraOperator operator = getCassandraOperator(cassOperator);
+        String whereColumn = (String) exchange.getIn().getHeader(CassandraConstants.CASSANDRA_WHERE_COLUMN);
+        Object whereValue = (Object) exchange.getIn().getHeader(CassandraConstants.CASSANDRA_WHERE_VALUE);
+        if (operation == CassandraOperations.incrCounter) {
+            update = QueryBuilder.update(endpoint.getTable()).with(QueryBuilder.incr(counterColumn, counterValue));
+            if (whereColumn != null && whereValue != null) {
+                switch (operator) {
+                case eq:
+                    update.where(QueryBuilder.eq(whereColumn, whereValue));
+                    break;
+                case gt:
+                    update.where(QueryBuilder.gt(whereColumn, whereValue));
+                    break;
+                case gte:
+                    update.where(QueryBuilder.gte(whereColumn, whereValue));
+                    break;
+                case lt:
+                    update.where(QueryBuilder.lt(whereColumn, whereValue));
+                    break;
+                case lte:
+                    update.where(QueryBuilder.gte(whereColumn, whereValue));
+                    break;
+                case in:
+                    update.where(QueryBuilder.in(whereColumn, (List<Object>)whereValue));
+                    break;
+                default:
+                    break;
+                }
+            }
+            result = session.execute(update);
+        }
+        Message responseMessage = prepareResponseMessage(exchange);
+        responseMessage.setBody(result);
+    }
+
+    protected void doDecrCounter(Exchange exchange, CassandraOperations operation, Session session) throws Exception {
+        ResultSet result = null;
+        Assignments update = null;
+        String counterColumn = (String) exchange.getIn().getHeader(CassandraConstants.CASSANDRA_COUNTER_COLUMN);
+        long counterValue = (long) exchange.getIn().getHeader(CassandraConstants.CASSANDRA_COUNTER_VALUE);
+        String cassOperator = (String) exchange.getIn().getHeader(CassandraConstants.CASSANDRA_OPERATOR);
+        CassandraOperator operator = getCassandraOperator(cassOperator);
+        String whereColumn = (String) exchange.getIn().getHeader(CassandraConstants.CASSANDRA_WHERE_COLUMN);
+        Object whereValue = (Object) exchange.getIn().getHeader(CassandraConstants.CASSANDRA_WHERE_VALUE);
+        if (operation == CassandraOperations.decrCounter) {
+            update = QueryBuilder.update(endpoint.getTable()).with(QueryBuilder.decr(counterColumn, counterValue));
+            if (whereColumn != null && whereValue != null) {
+                switch (operator) {
+                case eq:
+                    update.where(QueryBuilder.eq(whereColumn, whereValue));
+                    break;
+                case gt:
+                    update.where(QueryBuilder.gt(whereColumn, whereValue));
+                    break;
+                case gte:
+                    update.where(QueryBuilder.gte(whereColumn, whereValue));
+                    break;
+                case lt:
+                    update.where(QueryBuilder.lt(whereColumn, whereValue));
+                    break;
+                case lte:
+                    update.where(QueryBuilder.gte(whereColumn, whereValue));
+                    break;
+                case in:
+                    update.where(QueryBuilder.in(whereColumn, (List<Object>)whereValue));
+                    break;
+                default:
+                    break;
+                }
+            }
+            result = session.execute(update);
+        }
+        Message responseMessage = prepareResponseMessage(exchange);
+        responseMessage.setBody(result);
+    }
+
+    private void appendOrderBy(Select.Where select, CassandraOperator orderDirection, String columnName) {
+        if (columnName != null && orderDirection != null) {
+            if (orderDirection.equals(CassandraOperator.asc)) {
+                select.orderBy(QueryBuilder.asc((String) columnName));
+            } else {
+                select.orderBy(QueryBuilder.desc((String) columnName));
+            }
+        }
+    }
+
+    private Message prepareResponseMessage(Exchange exchange) {
+        Message answer = exchange.getOut();
+        MessageHelper.copyHeaders(exchange.getIn(), answer, false);
+        answer.setBody(exchange.getIn().getBody());
+        return answer;
+    }
+
+    private Collection<InetAddress> getInetAddress(List<String> addr) throws UnknownHostException {
+        Collection<InetAddress> coll = new HashSet<InetAddress>();
+        Iterator it = addr.iterator();
+        while (it.hasNext()) {
+            String address = (String) it.next();
+            coll.add(InetAddress.getByName(address));
+        }
+        return coll;
+    }
+
+    private CassandraOperator getCassandraOperator(String operator) throws UnknownHostException {
+        CassandraOperator cassOperator = null;
+        switch (operator) {
+        case "eq":
+            cassOperator = CassandraOperator.eq;
+            break;
+        case "gt":
+            cassOperator = CassandraOperator.gt;
+            break;
+        case "gte":
+            cassOperator = CassandraOperator.gte;
+            break;
+        case "lt":
+            cassOperator = CassandraOperator.lt;
+            break;
+        case "lte":
+            cassOperator = CassandraOperator.lte;
+            break;
+        case "in":
+            cassOperator = CassandraOperator.in;
+            break;
+        case "asc":
+            cassOperator = CassandraOperator.asc;
+            break;
+        case "desc":
+            cassOperator = CassandraOperator.desc;
+            break;
+        default:
+            break;
+        }
+        return cassOperator;
+    }
 }

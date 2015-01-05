@@ -54,7 +54,7 @@ public class CassandraUpdateTest extends CassandraBaseTest {
         assertEquals(result.wasApplied(), true);
         Cluster cluster = Cluster.builder().addContactPoint("127.0.0.1").build();
         Session session = cluster.connect("simplex");
-        Select.Where select = QueryBuilder.select().all().from("counter").where(QueryBuilder.eq("id", 1));
+        Select.Where select = QueryBuilder.select().all().from("songs").where(QueryBuilder.eq("id", 1));
         result = session.execute(select);
         session.close();
         cluster.close();

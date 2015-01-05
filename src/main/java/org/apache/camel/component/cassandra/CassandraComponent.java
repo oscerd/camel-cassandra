@@ -32,7 +32,7 @@ public class CassandraComponent extends DefaultComponent {
 
     @Override
     protected Endpoint createEndpoint(String uri, String remaining, Map<String, Object> parameters) throws Exception {
-    	CassandraEndpoint endpoint = new CassandraEndpoint(uri, this, remaining);
+        CassandraEndpoint endpoint = new CassandraEndpoint(uri, this, remaining);
         setProperties(endpoint, parameters);
         return endpoint;
     }

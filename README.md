@@ -1,3 +1,3 @@
 # Cassandra Component
 
-# Introduction
+Documentation available soon
