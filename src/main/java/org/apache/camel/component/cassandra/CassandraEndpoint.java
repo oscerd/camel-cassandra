@@ -24,9 +24,8 @@ import org.apache.camel.Producer;
 import org.apache.camel.impl.DefaultEndpoint;
 
 /**
- * Represents a MongoDb endpoint. It is responsible for creating
- * {@link CassandraProducer} and {@link MongoDbTailableCursorConsumer}
- * instances. It accepts a number of options to customise the behaviour of
+ * Represents a Cassandra endpoint. It is responsible for creating
+ * {@link CassandraProducer} instances. It accepts a number of options to customise the behaviour of
  * consumers and producers.
  */
 public class CassandraEndpoint extends DefaultEndpoint {
