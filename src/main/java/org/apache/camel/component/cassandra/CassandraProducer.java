@@ -156,7 +156,7 @@ public class CassandraProducer extends DefaultProducer {
             doDecrCounter(exchange, CassandraOperations.decrCounter, session);
             break;
         case batchInsert:
-            doBatch(exchange, CassandraOperations.batchInsert, session);
+            doBatchInsert(exchange, CassandraOperations.batchInsert, session);
             break;
         default:
             throw new CassandraException("Operation not supported. Value: " + operation);
@@ -495,7 +495,7 @@ public class CassandraProducer extends DefaultProducer {
         responseMessage.setBody(result);
     }
     
-    protected void doBatch(Exchange exchange, CassandraOperations operation, Session session) throws Exception {
+    protected void doBatchInsert(Exchange exchange, CassandraOperations operation, Session session) throws Exception {
         ResultSet result = null;
         PreparedStatement preparedStatement = null;
         String batchQuery = (String) exchange.getIn().getHeader(CassandraConstants.CASSANDRA_BATCH_QUERY);
