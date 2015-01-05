@@ -25,7 +25,9 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
+import com.datastax.driver.core.BatchStatement;
 import com.datastax.driver.core.Cluster;
+import com.datastax.driver.core.PreparedStatement;
 import com.datastax.driver.core.ResultSet;
 import com.datastax.driver.core.Session;
 import com.datastax.driver.core.querybuilder.Delete;
@@ -152,6 +154,9 @@ public class CassandraProducer extends DefaultProducer {
             break;
         case decrCounter:
             doDecrCounter(exchange, CassandraOperations.decrCounter, session);
+            break;
+        case batchInsert:
+            doBatch(exchange, CassandraOperations.batchInsert, session);
             break;
         default:
             throw new CassandraException("Operation not supported. Value: " + operation);
@@ -485,6 +490,28 @@ public class CassandraProducer extends DefaultProducer {
                 }
             }
             result = session.execute(update);
+        }
+        Message responseMessage = prepareResponseMessage(exchange);
+        responseMessage.setBody(result);
+    }
+    
+    protected void doBatch(Exchange exchange, CassandraOperations operation, Session session) throws Exception {
+        ResultSet result = null;
+        PreparedStatement preparedStatement = null;
+        String batchQuery = (String) exchange.getIn().getHeader(CassandraConstants.CASSANDRA_BATCH_QUERY);
+        List<Object[]> objectArrayList = (List<Object[]>) exchange.getIn().getHeader(CassandraConstants.CASSANDRA_BATCH_QUERY_LIST);
+        if (operation == CassandraOperations.batchInsert) {
+            if (batchQuery != null && objectArrayList != null) {
+                preparedStatement = session.prepare(batchQuery);
+                BatchStatement batch = new BatchStatement();
+                Iterator objectArrayIterator = objectArrayList.iterator();
+                while (objectArrayIterator.hasNext()) {
+                    Object[] objectArray = (Object[]) objectArrayIterator.next();
+                    batch.add(preparedStatement.bind(objectArray));
+                    objectArrayIterator.remove();
+                }
+                result = session.execute(batch);
+            }
         }
         Message responseMessage = prepareResponseMessage(exchange);
         responseMessage.setBody(result);

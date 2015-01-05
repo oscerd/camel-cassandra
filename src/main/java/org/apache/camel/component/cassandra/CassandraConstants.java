@@ -31,6 +31,8 @@ public final class CassandraConstants {
     public static final String CASSANDRA_INSERT_OBJECT = "CamelCassandraInsertObject";
     public static final String CASSANDRA_COUNTER_COLUMN = "CamelCassandraCounterColumn";
     public static final String CASSANDRA_COUNTER_VALUE = "CamelCassandraCounterValue";
+    public static final String CASSANDRA_BATCH_QUERY = "CamelCassandraBatchQuery";
+    public static final String CASSANDRA_BATCH_QUERY_LIST = "CamelCassandraBatchQueryList";
    
     private CassandraConstants() {
     }

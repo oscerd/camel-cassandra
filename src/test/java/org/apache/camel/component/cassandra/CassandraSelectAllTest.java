@@ -26,12 +26,15 @@ import com.datastax.driver.core.ResultSet;
 
 import org.apache.camel.builder.RouteBuilder;
 import org.apache.camel.component.cassandra.embedded.CassandraBaseTest;
+import org.apache.camel.component.mock.MockEndpoint;
 import org.junit.Test;
 
 public class CassandraSelectAllTest extends CassandraBaseTest {
 
     @Test
     public void testInsert() throws IOException, InterruptedException {
+        MockEndpoint mock = getMockEndpoint("mock:result");
+        mock.expectedMessageCount(1);
         String body = "";
         Map<String, Object> headers = new HashMap<String, Object>();
         String addr = "127.0.0.1";
@@ -40,13 +43,15 @@ public class CassandraSelectAllTest extends CassandraBaseTest {
         headers.put(CassandraConstants.CASSANDRA_CONTACT_POINTS, collAddr);
         ResultSet result = (ResultSet) template.requestBodyAndHeaders("direct:in", body, headers); 
         assertEquals(6, result.getAvailableWithoutFetching());
+        assertMockEndpointsSatisfied();
     }
 
     protected RouteBuilder createRouteBuilder() throws Exception {
         return new RouteBuilder() {
             public void configure() {
                 from("direct:in")
-                    .to("cassandra:cassandraConnection?keyspace=simplex&table=songs&operation=selectAll");
+                    .to("cassandra:cassandraConnection?keyspace=simplex&table=songs&operation=selectAll")
+                    .to("mock:result");
             }
         };
     }

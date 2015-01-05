@@ -26,5 +26,6 @@ public enum CassandraOperations {
     deleteColumnWhere,
     deleteWhere,
     incrCounter,
-    decrCounter
+    decrCounter,
+    batchInsert
 }

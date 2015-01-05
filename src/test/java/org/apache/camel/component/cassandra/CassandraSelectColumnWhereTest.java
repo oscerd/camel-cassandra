@@ -27,12 +27,15 @@ import com.datastax.driver.core.Row;
 
 import org.apache.camel.builder.RouteBuilder;
 import org.apache.camel.component.cassandra.embedded.CassandraBaseTest;
+import org.apache.camel.component.mock.MockEndpoint;
 import org.junit.Test;
 
 public class CassandraSelectColumnWhereTest extends CassandraBaseTest {
 
     @Test
     public void testSelectWhere() throws IOException, InterruptedException {
+        MockEndpoint mock = getMockEndpoint("mock:result");
+        mock.expectedMessageCount(1);
         List<String> titleList = new ArrayList<String>();
         titleList.add("3 Days In Darkness");
         titleList.add("DNR");
@@ -53,13 +56,15 @@ public class CassandraSelectColumnWhereTest extends CassandraBaseTest {
         for (Row row : result) {
             assertTrue(titleList.contains(row.getString("title")));
         }
+        assertMockEndpointsSatisfied();
     }
 
     protected RouteBuilder createRouteBuilder() throws Exception {
         return new RouteBuilder() {
             public void configure() {
                 from("direct:in")
-                    .to("cassandra:cassandraConnection?keyspace=simplex&table=songs&operation=selectColumnWhere");
+                    .to("cassandra:cassandraConnection?keyspace=simplex&table=songs&operation=selectColumnWhere")
+                    .to("mock:result");
             }
         };
     }

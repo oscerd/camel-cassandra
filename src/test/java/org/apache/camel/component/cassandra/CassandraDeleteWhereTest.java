@@ -30,12 +30,15 @@ import com.datastax.driver.core.querybuilder.Select;
 
 import org.apache.camel.builder.RouteBuilder;
 import org.apache.camel.component.cassandra.embedded.CassandraBaseTest;
+import org.apache.camel.component.mock.MockEndpoint;
 import org.junit.Test;
 
 public class CassandraDeleteWhereTest extends CassandraBaseTest {
 
     @Test
     public void testDelete() throws IOException, InterruptedException {
+        MockEndpoint mock = getMockEndpoint("mock:result");
+        mock.expectedMessageCount(1);
         String body = "";
         Map<String, Object> headers = new HashMap<String, Object>();
         String addr = "127.0.0.1";
@@ -54,13 +57,15 @@ public class CassandraDeleteWhereTest extends CassandraBaseTest {
         session.close();
         cluster.close();
         assertEquals(result.getAvailableWithoutFetching(), 5);
+        assertMockEndpointsSatisfied();
     }
 
     protected RouteBuilder createRouteBuilder() throws Exception {
         return new RouteBuilder() {
             public void configure() {
                 from("direct:in")
-                    .to("cassandra:cassandraConnection?keyspace=simplex&table=songs&operation=deleteWhere");
+                    .to("cassandra:cassandraConnection?keyspace=simplex&table=songs&operation=deleteWhere")
+                    .to("mock:result");
             }
         };
     }

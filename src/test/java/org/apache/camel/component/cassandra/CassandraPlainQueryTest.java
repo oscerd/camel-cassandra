@@ -27,12 +27,15 @@ import com.datastax.driver.core.Row;
 
 import org.apache.camel.builder.RouteBuilder;
 import org.apache.camel.component.cassandra.embedded.CassandraBaseTest;
+import org.apache.camel.component.mock.MockEndpoint;
 import org.junit.Test;
 
 public class CassandraPlainQueryTest extends CassandraBaseTest {
 
     @Test
     public void testPlainQuery() throws IOException, InterruptedException {
+        MockEndpoint mock = getMockEndpoint("mock:result");
+        mock.expectedMessageCount(1);
         String body = "SELECT id, album, title FROM songs";
         Map<String, Object> headers = new HashMap<String, Object>();
         String addr = "127.0.0.1";
@@ -45,13 +48,15 @@ public class CassandraPlainQueryTest extends CassandraBaseTest {
             assertTrue(row.getString("album") != null); 
             assertTrue(row.getString("title") != null); 
         }
+        assertMockEndpointsSatisfied();
     }
 
     protected RouteBuilder createRouteBuilder() throws Exception {
         return new RouteBuilder() {
             public void configure() {
                 from("direct:in")
-                    .to("cassandra:cassandraConnection?keyspace=simplex");
+                    .to("cassandra:cassandraConnection?keyspace=simplex")
+                    .to("mock:result");
             }
         };
     }

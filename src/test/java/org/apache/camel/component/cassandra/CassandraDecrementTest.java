@@ -31,12 +31,15 @@ import com.datastax.driver.core.querybuilder.Select;
 
 import org.apache.camel.builder.RouteBuilder;
 import org.apache.camel.component.cassandra.embedded.CassandraBaseCounterTest;
+import org.apache.camel.component.mock.MockEndpoint;
 import org.junit.Test;
 
 public class CassandraDecrementTest extends CassandraBaseCounterTest {
 
     @Test
     public void testDecrementCounter() throws IOException, InterruptedException {
+        MockEndpoint mock = getMockEndpoint("mock:result");
+        mock.expectedMessageCount(1);
         String body = "";
         Map<String, Object> headers = new HashMap<String, Object>();
         String addr = "127.0.0.1";
@@ -59,13 +62,15 @@ public class CassandraDecrementTest extends CassandraBaseCounterTest {
         for (Row row : (ResultSet) result) {
             assertEquals(row.getLong("like"), -4);
         }
+        assertMockEndpointsSatisfied();
     }
 
     protected RouteBuilder createRouteBuilder() throws Exception {
         return new RouteBuilder() {
             public void configure() {
                 from("direct:in")
-                    .to("cassandra:cassandraConnection?keyspace=simplex&table=counter&operation=decrCounter");
+                    .to("cassandra:cassandraConnection?keyspace=simplex&table=counter&operation=decrCounter")
+                    .to("mock:result");
             }
         };
     }
