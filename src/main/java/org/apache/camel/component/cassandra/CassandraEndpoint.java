@@ -34,6 +34,9 @@ public class CassandraEndpoint extends DefaultEndpoint {
     private String keyspace;
     private String table;
     private CassandraOperations operation;
+    private String host;
+    private String port;
+    private String pollingQuery;
 
     public CassandraEndpoint() {
     }
@@ -49,8 +52,7 @@ public class CassandraEndpoint extends DefaultEndpoint {
 
     @Override
     public Consumer createConsumer(Processor processor) throws Exception {
-        // TODO Auto-generated method stub
-        return null;
+        return new CassandraConsumer(this, processor);
     }
 
     @Override
@@ -83,6 +85,30 @@ public class CassandraEndpoint extends DefaultEndpoint {
         this.table = table;
     }
 
+    public String getHost() {
+        return host;
+    }
+
+    public void setHost(String host) {
+        this.host = host;
+    }
+
+    public String getPort() {
+        return port;
+    }
+
+    public void setPort(String port) {
+        this.port = port;
+    }
+
+    public String getPollingQuery() {
+        return pollingQuery;
+    }
+
+    public void setPollingQuery(String pollingQuery) {
+        this.pollingQuery = pollingQuery;
+    }
+
     public CassandraOperations getOperation() {
         return operation;
     }
@@ -94,5 +120,4 @@ public class CassandraEndpoint extends DefaultEndpoint {
             throw new CassandraException("Operation not supported", e);
         }
     }
-
 }
