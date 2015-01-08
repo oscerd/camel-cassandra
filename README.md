@@ -12,8 +12,19 @@ The camel-cassandra component integrates Camel with Cassandra allowing you to in
 
 ```
 
-cassandra:beanName[?options]
+cassandra:name[?options]
 
 ```
 
 # Options
+
+Cassandra endpoints support the following options, depending on whether they are acting like a Producer or as a Consumer.
+
+| Option              | Default | Description                                                                         | Producer     | Consumer    |
+|---------------------|---------|-------------------------------------------------------------------------------------|--------------|-------------|
+| host                | null    | The host of the Cassandra Instance                                                  |              |      x      |
+| port                | null    | The port exposing the Cassandra Instance                                            |              |      x      |
+| keyspace            | null    | The keyspace to work on with the component                                          |      x       |      x      |
+| table               | null    | The table to work on with the component                                             |      x       |             |
+| operation           | null    | The operation to do (operations are listed in the following of this document)       |      x       |             |
+| pollingQuery        | null    | The query to submit when using the component as consumer                            |              |      x      |
