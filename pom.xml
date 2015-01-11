@@ -17,11 +17,11 @@
 	<packaging>bundle</packaging>
 	<name>Camel :: Cassandra</name>
 	<description>Camel Cassandra support</description>
-	<groupId>org.apache.camel</groupId>
-	<version>0.0.1</version>
+	<groupId>com.github.oscerd.camel.cassandra</groupId>
+	<version>0.0.1-SNAPSHOT</version>
 
 	<properties>
-		<camel.osgi.export.pkg>org.apache.camel.component.cassandra.*</camel.osgi.export.pkg>
+		<camel.osgi.export.pkg>com.github.oscerd.camel.component.cassandra.*</camel.osgi.export.pkg>
 		<camel.osgi.export.service>org.apache.camel.spi.ComponentResolver;component=cassandra</camel.osgi.export.service>
 		<camel.core.version>2.14.1</camel.core.version>
 		<camel.test.version>2.14.1</camel.test.version>
@@ -32,6 +32,7 @@
 		<maven.surefire.plugin.version>2.17</maven.surefire.plugin.version>
 		<maven.bundle.plugin.version>2.5.3</maven.bundle.plugin.version>
 		<maven.compiler.plugin.version>3.2</maven.compiler.plugin.version>
+		<maven.release.plugin.version>2.5</maven.release.plugin.version>
 	</properties>
 
 	<scm>
@@ -39,6 +40,17 @@
 		<connection>scm:git:https://github.com/oscerd/camel-cassandra.git</connection>
 		<developerConnection>scm:git:https://oscerd@github.com/oscerd/camel-cassandra.git</developerConnection>
 	</scm>
+
+	<distributionManagement>
+		<repository>
+			<id>sonatype-nexus-staging</id>
+			<url>https://oss.sonatype.org/service/local/staging/deploy/maven2</url>
+		</repository>
+		<snapshotRepository>
+			<id>sonatype-nexus-snapshots</id>
+			<url>https://oss.sonatype.org/content/repositories/snapshots</url>
+		</snapshotRepository>
+	</distributionManagement>
 
 	<dependencies>
 
@@ -112,6 +124,11 @@
 					<source>1.7</source>
 					<target>1.7</target>
 				</configuration>
+			</plugin>
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-release-plugin</artifactId>
+				<version>${maven.release.plugin.version}</version>
 			</plugin>
 		</plugins>
 	</build>
