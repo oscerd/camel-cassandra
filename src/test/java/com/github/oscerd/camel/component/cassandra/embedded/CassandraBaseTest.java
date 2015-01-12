@@ -84,8 +84,8 @@ public class CassandraBaseTest extends CamelTestSupport {
         session.execute("CREATE TABLE IF NOT EXISTS simplex.songs ("
                         + "id int PRIMARY KEY," + "title text," + "album text,"
                         + "artist text," + "tags set<text>," + "data blob," + ");");
-        session.execute("CREATE INDEX album_idx ON simplex.songs(album);");
-        session.execute("CREATE INDEX title_idx ON simplex.songs(title);");
+        session.execute("CREATE INDEX IF NOT EXISTS album_idx ON simplex.songs(album);");
+        session.execute("CREATE INDEX IF NOT EXISTS title_idx ON simplex.songs(title);");
         PreparedStatement statement = session.prepare("INSERT INTO simplex.songs "
                                       + "(id, title, album, artist, tags) "
                                       + "VALUES (?, ?, ?, ?, ?);");
