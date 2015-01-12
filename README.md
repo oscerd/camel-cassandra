@@ -45,3 +45,15 @@ Camel-Cassandra component provides fifteen headers by which you can define a dif
 | CassandraConstants.CASSANDRA_OPERATOR            | String       | Define the operator to work with on a clause (eq, in, lt, lte etc.)                    |
 | CassandraConstants.CASSANDRA_ORDERBY_COLUMN      | String       | If you need to specify an order by clause, define the interested column in this header |
 | CassandraConstants.CASSANDRA_ORDER_DIRECTION     | String       | Define the direction of the order by column in this header (asc or desc)               |
+| CassandraConstants.CASSANDRA_UPDATE_OBJECT       | HashMap<String, Object>  | Define an updating object to use                                           |
+| CassandraConstants.CASSANDRA_INSERT_OBJECT       | HashMap<String, Object>  | Define an inserting object to use                                          |
+| CassandraConstants.CASSANDRA_COUNTER_COLUMN      | String       | Define the name of a counter column you need to increment or decrement                 |
+| CassandraConstants.CASSANDRA_COUNTER_VALUE       | String       | Define the incrementing or decrementing value of a counter column specified            |
+| CassandraConstants.CASSANDRA_BATCH_QUERY         | String       | A query to use in a batch operation                                                    |
+| CassandraConstants.CASSANDRA_BATCH_QUERY_LIST    | List<Object[]>  | The object arrays to use in the batch query                                         |
+
+If you need to execute a complex query you can set the body of your message with the plain query and execute a plain query operation.
+
+
+
+
