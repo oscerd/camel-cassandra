@@ -35,7 +35,7 @@ Camel-Cassandra component provides fifteen headers by which you can define a dif
 
 | Header                                           | Type                     | Description                                                                            |
 |--------------------------------------------------|--------------------------|----------------------------------------------------------------------------------------|
-| CassandraConstants.CASSANDRA_CONTACT_POINTS      | List<String>             | A contact points list to connect to the different Cassandra instances                  |
+| CassandraConstants.CASSANDRA_CONTACT_POINTS      | List of String             | A contact points list to connect to the different Cassandra instances                  |
 | CassandraConstants.CASSANDRA_PORT                | String                   | The (same) port where the different Cassandra Instances are exposed                    |
 | CassandraConstants.CASSANDRA_OPERATION_HEADER    | String                   | The operation to do on the keyspace and table of Cassandra instances                   |
 | CassandraConstants.CASSANDRA_SELECT_COLUMN       | String                   | If you need to select a specific column in a query, define this header                 |
@@ -45,12 +45,12 @@ Camel-Cassandra component provides fifteen headers by which you can define a dif
 | CassandraConstants.CASSANDRA_OPERATOR            | String                   | Define the operator to work with on a clause (eq, in, lt, lte etc.)                    |
 | CassandraConstants.CASSANDRA_ORDERBY_COLUMN      | String                   | If you need to specify an order by clause, define the interested column in this header |
 | CassandraConstants.CASSANDRA_ORDER_DIRECTION     | String                   | Define the direction of the order by column in this header (asc or desc)               |
-| CassandraConstants.CASSANDRA_UPDATE_OBJECT       | HashMap<String, Object>  | Define an updating object to use                                                       |
-| CassandraConstants.CASSANDRA_INSERT_OBJECT       | HashMap<String, Object>  | Define an inserting object to use                                                      |
+| CassandraConstants.CASSANDRA_UPDATE_OBJECT       | HashMap of String, Object  | Define an updating object to use                                                       |
+| CassandraConstants.CASSANDRA_INSERT_OBJECT       | HashMap of String, Object  | Define an inserting object to use                                                      |
 | CassandraConstants.CASSANDRA_COUNTER_COLUMN      | String                   | Define the name of a counter column you need to increment or decrement                 |
 | CassandraConstants.CASSANDRA_COUNTER_VALUE       | String                   | Define the incrementing or decrementing value of a counter column specified            |
 | CassandraConstants.CASSANDRA_BATCH_QUERY         | String                   | A query to use in a batch operation                                                    |
-| CassandraConstants.CASSANDRA_BATCH_QUERY_LIST    | List<Object[]>           | The object arrays to use in the batch query                                            |
+| CassandraConstants.CASSANDRA_BATCH_QUERY_LIST    | List of Object[]         | The object arrays to use in the batch query                                            |
 
 If you need to execute a complex query you can set the body of your message with the plain query and execute a plain query operation.
 
