@@ -29,7 +29,7 @@ Cassandra endpoints support the following options, depending on whether they are
 | operation           | null    | The operation to do (operations are listed in the following of this document)       |      x       |             |
 | pollingQuery        | null    | The query to submit when using the component as consumer                            |              |      x      |
 
-If you need to interact with a Cassandra instance as producer you'll need to set some headers in the message. This solution was developed to make the interested camel route more readable and to create create a cluster connection and a working session, each time you'll use the component as producer in the route. This approach is a good solution to take advantage of flexibility and functionalities of the Cassandra Datastax Java Driver. Let's list those Headers.
+If you need to interact with a Cassandra instance as producer you'll need to set some headers in the message. This solution was developed to make the interested camel route more readable and to create a cluster connection and a working session each time you'll use the component as producer in the route. This approach is a good solution to take advantage of flexibility and functionalities of the Cassandra Datastax Java Driver. Let's list those Headers.
 
 Camel-Cassandra component provides fifteen headers by which you can define a different behaviour. We will talk about plain query in the following of this documentation.
 
@@ -53,6 +53,35 @@ Camel-Cassandra component provides fifteen headers by which you can define a dif
 | CassandraConstants.CASSANDRA_BATCH_QUERY_LIST    | List of Object[]         | The object arrays to use in the batch query                                            |
 
 If you need to execute a complex query you can set the body of your message with the plain query and execute a plain query operation.
+
+# Operations
+
+Here we list the possible operation to specify in the operation parameter of the URI.
+
+- selectAll: A select all operation on a table of a keyspace
+- selectAllWhere: A select all operation with a where clause on a table of a keyspace
+- selectColumn: A select for a specific column on a table of a keyspace
+- selectColumnWhere: A select for a specific column with a where clause on a table of a keyspace
+- update: An update
+- insert: An insert
+- deleteColumnWhere: A delete for a specific column with a where clause on a table of a keyspace
+- deleteWhere: A delete with a where clause
+- incrCounter: An increment of a counter
+- decrCounter: A decrement of a counter
+- batchInsert: A batch insert
+
+# Operators
+
+Here we list the possible operator to specify in CASSANDRA_OPERATOR header of a message.
+
+- eq: equal
+- lt: less than
+- lte: less than or equal
+- gt: greater than
+- gte: greater than or equal
+- in: in
+- asc: ascending
+- desc: descending
 
 
 
