@@ -16,6 +16,7 @@
  */
 package com.github.oscerd.camel.component.cassandra.embedded;
 
+import java.io.File;
 import java.util.Arrays;
 import java.util.concurrent.CountDownLatch;
 
@@ -29,6 +30,7 @@ import io.teknek.farsandra.LineHandler;
 import io.teknek.farsandra.ProcessHandler;
 
 import org.apache.camel.test.junit4.CamelTestSupport;
+import org.apache.commons.lang.RandomStringUtils;
 
 /**
  * Sample on how to spin up an embedded Cassandra instance
@@ -40,10 +42,12 @@ public class CassandraBaseCounterTest extends CamelTestSupport {
 
     @Override
     public void doPostSetup() {
+        String id = RandomStringUtils.random(12,
+                "0123456789abcdefghijklmnopqrstuvwxyz");
         fs = new Farsandra();
         fs.withVersion("2.0.3");
         fs.withCleanInstanceOnStart(true);
-        fs.withInstanceName("target/1");
+        fs.withInstanceName("target" + File.separator + id);
         fs.withCreateConfigurationFiles(true);
         fs.withHost("localhost");
         fs.withSeeds(Arrays.asList("localhost"));
