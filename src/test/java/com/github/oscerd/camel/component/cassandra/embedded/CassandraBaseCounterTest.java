@@ -97,8 +97,7 @@ public class CassandraBaseCounterTest extends CamelTestSupport {
     @Override 
     public void tearDown() throws Exception {
         //Shutting down everything in an orderly fashion
-        fs.getManager().destroy();
-        Thread.sleep(10000);
+        fs.getManager().destroyAndWaitForShutdown(10);
         super.tearDown();
     }
 }
