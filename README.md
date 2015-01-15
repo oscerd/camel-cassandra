@@ -58,30 +58,30 @@ If you need to execute a complex query you can set the body of your message with
 
 Here we list the possible operation to specify in the operation parameter of the URI.
 
-- selectAll: A select all operation on a table of a keyspace
-- selectAllWhere: A select all operation with a where clause on a table of a keyspace
-- selectColumn: A select for a specific column on a table of a keyspace
-- selectColumnWhere: A select for a specific column with a where clause on a table of a keyspace
-- update: An update
-- insert: An insert
-- deleteColumnWhere: A delete for a specific column with a where clause on a table of a keyspace
-- deleteWhere: A delete with a where clause
-- incrCounter: An increment of a counter
-- decrCounter: A decrement of a counter
-- batchInsert: A batch insert
+- __selectAll__: A select all operation on a table of a keyspace
+- __selectAllWhere__: A select all operation with a where clause on a table of a keyspace
+- __selectColumn__: A select for a specific column on a table of a keyspace
+- __selectColumnWhere__: A select for a specific column with a where clause on a table of a keyspace
+- __update__: An update
+- __insert__: An insert
+- __deleteColumnWhere__: A delete for a specific column with a where clause on a table of a keyspace
+- __deleteWhere__: A delete with a where clause
+- __incrCounter__: An increment of a counter
+- __decrCounter__: A decrement of a counter
+- __batchInsert__: A batch insert
 
 # Operators
 
 Here we list the possible operator to specify in CASSANDRA_OPERATOR header of a message.
 
-- eq: equal
-- lt: less than
-- lte: less than or equal
-- gt: greater than
-- gte: greater than or equal
-- in: in
-- asc: ascending
-- desc: descending
+- __eq__: equal
+- __lt__: less than
+- __lte__: less than or equal
+- __gt__: greater than
+- __gte__: greater than or equal
+- __in__: in
+- __asc__: ascending
+- __desc__: descending
 
 
 
