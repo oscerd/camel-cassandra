@@ -22,7 +22,7 @@ Cassandra endpoints support the following options, depending on whether they are
 
 | Option              | Default | Description                                                                         | Producer     | Consumer    |
 |---------------------|---------|-------------------------------------------------------------------------------------|--------------|-------------|
-| host                | null    | The host of the Cassandra Instance                                                  |              |      x      |
+| host                | null    | The hosts of the Cassandra Instance, separated by comma                             |              |      x      |
 | port                | null    | The port exposing the Cassandra Instance                                            |              |      x      |
 | keyspace            | null    | The keyspace to work on with the component                                          |      x       |      x      |
 | table               | null    | The table to work on with the component                                             |      x       |             |
