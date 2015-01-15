@@ -24,6 +24,7 @@ import org.apache.camel.Exchange;
 import org.apache.camel.Message;
 import org.apache.camel.Processor;
 import org.apache.camel.impl.ScheduledPollConsumer;
+import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -43,10 +44,13 @@ public class CassandraConsumer extends ScheduledPollConsumer {
     @Override
     protected int poll() throws Exception {
         String host = getEndpoint().getHost();
+        String[] hostLists = splitHost(host);
         String port = getEndpoint().getPort();
         String keySpace = getEndpoint().getKeyspace();
         String pollingQuery = getEndpoint().getPollingQuery();
-        Cluster cluster = Cluster.builder().addContactPoint(host).withPort(Integer.parseInt(port)).build();
+        Cluster cluster = null;
+        if (hostLists.length == 0) cluster = Cluster.builder().addContactPoint(host).withPort(Integer.parseInt(port)).build();
+        else cluster = Cluster.builder().addContactPoints(hostLists).withPort(Integer.parseInt(port)).build();
         Session session = cluster.connect(keySpace);
         ResultSet resultSet = null;
         try {
@@ -75,5 +79,10 @@ public class CassandraConsumer extends ScheduledPollConsumer {
      */
     protected void fillMessage(ResultSet resultSet, Message message) {
         message.setBody(resultSet);
+    }
+    
+    private String[] splitHost(String hostList){
+    	String[] hosts = StringUtils.split(hostList, ",");
+    	return hosts;
     }
 }
