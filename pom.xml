@@ -72,18 +72,18 @@
 			<artifactId>farsandra</artifactId>
 			<version>${io.teknek.farsandra.version}</version>
 		</dependency>
-
+		
+		<dependency>
+			<groupId>commons-lang</groupId>
+			<artifactId>commons-lang</artifactId>
+			<version>${commons-lang.version}</version>
+		</dependency>
+	
 		<!-- testing -->
 		<dependency>
 			<groupId>org.apache.camel</groupId>
 			<artifactId>camel-test</artifactId>
 			<version>${camel.test.version}</version>
-			<scope>test</scope>
-		</dependency>
-		<dependency>
-			<groupId>commons-lang</groupId>
-			<artifactId>commons-lang</artifactId>
-			<version>${commons-lang.version}</version>
 			<scope>test</scope>
 		</dependency>
 		<dependency>
