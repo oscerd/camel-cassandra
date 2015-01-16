@@ -83,6 +83,22 @@ Here we list the possible operator to specify in CASSANDRA_OPERATOR header of a 
 - __asc__: ascending
 - __desc__: descending
 
+# Examples
 
+- Consumer
 
+Example of camel-cassandra used as Consumer:
+
+```java
+
+from("cassandra:cluster?host=127.0.0.1&port=9042&keyspace=simplex&pollingQuery=select * from songs")
+    .to("mock:result");
+
+```
+
+This route will poll a Cassandra instances running on 127.0.0.1 on port 9042. The keyspace will be simplex and the polling query _select * from songs_ . The result will be a Datastax Java Driver result set.
+
+- Producer
+
+Example of camel-cassandra used as Producer:
 
