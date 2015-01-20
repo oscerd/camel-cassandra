@@ -100,5 +100,21 @@ This route will poll a Cassandra instances running on 127.0.0.1 on port 9042. Th
 
 - Producer
 
-Example of camel-cassandra used as Producer:
+Examples of camel-cassandra used as Producer:
 
+_Example 1_:
+
+```java
+
+String addr = "127.0.0.1";
+List<String> collAddr = new ArrayList<String>();
+collAddr.add(addr);
+    
+from("direct:in")
+    .setHeader(CassandraConstants.CASSANDRA_CONTACT_POINTS, constant(collAddr))
+    .to("cassandra:cassandraConnection?keyspace=simplex&table=songs&operation=selectAll")
+    .to("mock:result");
+
+```
+
+This route will connect to the cassandra instance running on 127.0.0.1 and port 9042, and will query all rows on the keyspace simplex and table songs.
