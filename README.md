@@ -294,3 +294,25 @@ from("direct:in")
 ```
 
 This route will connect to the cassandra instance running on 127.0.0.1 and port 9042, and will increment of 5 units the _like_ counter of the song with _id_ equal to 1, into the songs table of simplex keyspace.
+
+_Example 10_:
+
+```java
+
+String addr = "127.0.0.1";
+List<String> collAddr = new ArrayList<String>();
+collAddr.add(addr);
+    
+from("direct:in")
+    .setHeader(CassandraConstants.CASSANDRA_CONTACT_POINTS, constant(collAddr))
+    .setHeader(CassandraConstants.CASSANDRA_WHERE_COLUMN, constant("id"))
+    .setHeader(CassandraConstants.CASSANDRA_WHERE_VALUE, constant(1))
+    .setHeader(CassandraConstants.CASSANDRA_OPERATOR, constant("eq"))
+    .setHeader(CassandraConstants.CASSANDRA_COUNTER_COLUMN, constant("like"))
+    .setHeader(CassandraConstants.CASSANDRA_COUNTER_VALUE, constant(new Long(5)))
+    .to("cassandra:cassandraConnection?keyspace=simplex&table=counter&operation=decrCounter")
+    .to("mock:result");
+
+```
+
+This route will connect to the cassandra instance running on 127.0.0.1 and port 9042, and will decrement of 5 units the _like_ counter of the song with _id_ equal to 1, into the songs table of simplex keyspace.
