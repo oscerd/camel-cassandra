@@ -16,6 +16,9 @@
  */
 package com.github.oscerd.component.cassandra;
 
+/**
+ * Represents the constants used by {@link CassandraComponent}.
+ */
 public final class CassandraConstants {
     public static final String CASSANDRA_CONTACT_POINTS = "CamelCassandraContactPoints";
     public static final String CASSANDRA_PORT = "CamelCassandraPort";

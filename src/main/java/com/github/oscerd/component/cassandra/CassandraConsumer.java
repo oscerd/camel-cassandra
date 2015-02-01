@@ -28,10 +28,17 @@ import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+/**
+ *  Represents a Cassandra Consumer
+ */
 public class CassandraConsumer extends ScheduledPollConsumer {
 
     private static final Logger LOG = LoggerFactory.getLogger(CassandraConsumer.class);
     
+	/**
+	 * @param endpoint
+	 * @param processor
+	 */
     public CassandraConsumer(CassandraEndpoint endpoint, Processor processor) {
         super(endpoint, processor);
     }
@@ -41,6 +48,10 @@ public class CassandraConsumer extends ScheduledPollConsumer {
         return (CassandraEndpoint) super.getEndpoint();
     }
 
+    /**
+    * Method that poll a specific Cassandra instance and work on his data
+    * 
+    */
     @Override
     protected int poll() throws Exception {
         String host = getEndpoint().getHost();

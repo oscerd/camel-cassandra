@@ -46,18 +46,27 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
- * The Cassandra producer.
+ *  Represents a Cassandra Producer
  */
 public class CassandraProducer extends DefaultProducer {
     private static final Logger LOG = LoggerFactory.getLogger(CassandraProducer.class);
 
     private CassandraEndpoint endpoint;
 
+	/**
+	 * @param endpoint
+	 */
     public CassandraProducer(CassandraEndpoint endpoint) {
         super(endpoint);
         this.endpoint = endpoint;
     }
 
+    /**
+    * Method that processes the exchange and choose the appropriate operation based on the exchange content.
+    * 
+    * @param exchange
+    * @throws Exception
+    */
     public void process(Exchange exchange) throws Exception {
         Cluster cassandra = endpoint.getCassandraCluster();
         List<String> contact = (List<String>) exchange.getIn().getHeader(CassandraConstants.CASSANDRA_CONTACT_POINTS);
@@ -163,6 +172,14 @@ public class CassandraProducer extends DefaultProducer {
         }
     }
 
+    /**
+    * Method that executes a select all operation
+    * 
+    * @param operation
+    * @param exchange
+    * @param session
+    * @throws Exception
+    */
     protected void doSelectAll(Exchange exchange, CassandraOperations operation, Session session) throws Exception {
         ResultSet result = null;
 
@@ -175,6 +192,14 @@ public class CassandraProducer extends DefaultProducer {
         responseMessage.setBody(result);
     }
 
+    /**
+    * Method that executes a select all where operation
+    * 
+    * @param operation
+    * @param exchange
+    * @param session
+    * @throws Exception
+    */
     protected void doSelectWhere(Exchange exchange, CassandraOperations operation, Session session) throws Exception {
         ResultSet result = null;
         Select.Where select = null;
@@ -218,6 +243,14 @@ public class CassandraProducer extends DefaultProducer {
         responseMessage.setBody(result);
     }
 
+    /**
+    * Method that executes a select column where operation
+    * 
+    * @param operation
+    * @param exchange
+    * @param session
+    * @throws Exception
+    */
     protected void doSelectColumnWhere(Exchange exchange, CassandraOperations operation, Session session) throws Exception {
         ResultSet result = null;
         Select.Where select = null;
@@ -258,6 +291,14 @@ public class CassandraProducer extends DefaultProducer {
         responseMessage.setBody(result);
     }
 
+    /**
+    * Method that executes a select column operation
+    * 
+    * @param operation
+    * @param exchange
+    * @param session
+    * @throws Exception
+    */
     protected void doSelectColumn(Exchange exchange, CassandraOperations operation, Session session) throws Exception {
         ResultSet result = null;
         Select select = null;
@@ -270,6 +311,14 @@ public class CassandraProducer extends DefaultProducer {
         responseMessage.setBody(result);
     }
 
+    /**
+    * Method that executes an insert operation
+    * 
+    * @param operation
+    * @param exchange
+    * @param session
+    * @throws Exception
+    */
     protected void doInsert(Exchange exchange, CassandraOperations operation, Session session) throws Exception {
         ResultSet result = null;
         Insert insert = null;
@@ -288,6 +337,14 @@ public class CassandraProducer extends DefaultProducer {
         responseMessage.setBody(result);
     }
 
+    /**
+    * Method that executes an update operation
+    * 
+    * @param operation
+    * @param exchange
+    * @param session
+    * @throws Exception
+    */
     protected void doUpdate(Exchange exchange, CassandraOperations operation, Session session) throws Exception {
         ResultSet result = null;
         Update update = null;
@@ -334,6 +391,14 @@ public class CassandraProducer extends DefaultProducer {
         responseMessage.setBody(result);
     }
 
+    /**
+    * Method that executes a delete where operation
+    * 
+    * @param operation
+    * @param exchange
+    * @param session
+    * @throws Exception
+    */
     protected void doDeleteWhere(Exchange exchange, CassandraOperations operation, Session session) throws Exception {
         ResultSet result = null;
         Delete.Where delete = null;
@@ -373,6 +438,14 @@ public class CassandraProducer extends DefaultProducer {
         responseMessage.setBody(result);
     }
 
+    /**
+    * Method that executes a delete column where operation
+    * 
+    * @param operation
+    * @param exchange
+    * @param session
+    * @throws Exception
+    */
     protected void doDeleteColumnWhere(Exchange exchange, CassandraOperations operation, Session session) throws Exception {
         ResultSet result = null;
         Delete.Where delete = null;
@@ -413,6 +486,14 @@ public class CassandraProducer extends DefaultProducer {
         responseMessage.setBody(result);
     }
 
+    /**
+    * Method that executes an increment counter operation
+    * 
+    * @param operation
+    * @param exchange
+    * @param session
+    * @throws Exception
+    */
     protected void doIncrCounter(Exchange exchange, CassandraOperations operation, Session session) throws Exception {
         ResultSet result = null;
         Assignments update = null;
@@ -454,6 +535,14 @@ public class CassandraProducer extends DefaultProducer {
         responseMessage.setBody(result);
     }
 
+    /**
+    * Method that executes a decrement counter operation
+    * 
+    * @param operation
+    * @param exchange
+    * @param session
+    * @throws Exception
+    */
     protected void doDecrCounter(Exchange exchange, CassandraOperations operation, Session session) throws Exception {
         ResultSet result = null;
         Assignments update = null;
@@ -494,7 +583,15 @@ public class CassandraProducer extends DefaultProducer {
         Message responseMessage = prepareResponseMessage(exchange);
         responseMessage.setBody(result);
     }
-    
+
+    /**
+    * Method that executes a batch insert operation
+    * 
+    * @param operation
+    * @param exchange
+    * @param session
+    * @throws Exception
+    */
     protected void doBatchInsert(Exchange exchange, CassandraOperations operation, Session session) throws Exception {
         ResultSet result = null;
         PreparedStatement preparedStatement = null;
@@ -527,6 +624,9 @@ public class CassandraProducer extends DefaultProducer {
         }
     }
 
+	/**
+	 * @param exchange
+	 */
     private Message prepareResponseMessage(Exchange exchange) {
         Message answer = exchange.getOut();
         MessageHelper.copyHeaders(exchange.getIn(), answer, false);
@@ -534,6 +634,9 @@ public class CassandraProducer extends DefaultProducer {
         return answer;
     }
 
+	/**
+	 * @param addr
+	 */
     private Collection<InetAddress> getInetAddress(List<String> addr) throws UnknownHostException {
         Collection<InetAddress> coll = new HashSet<InetAddress>();
         Iterator it = addr.iterator();
@@ -544,6 +647,9 @@ public class CassandraProducer extends DefaultProducer {
         return coll;
     }
 
+	/**
+	 * @param operator
+	 */
     private CassandraOperator getCassandraOperator(String operator) throws UnknownHostException {
         CassandraOperator cassOperator = null;
         switch (operator) {
