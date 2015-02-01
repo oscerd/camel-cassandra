@@ -371,3 +371,7 @@ from("direct:in")
 ```
 
 This route will connect to the cassandra instance running on 127.0.0.1 and port 9042, and will submit a batch Insert of 7 songs.
+
+# Code Examples
+
+- https://github.com/oscerd/camel-cassandra-example: A simple Camel Route using Camel-cassandra component
