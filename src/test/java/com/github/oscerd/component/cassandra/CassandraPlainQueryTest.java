@@ -42,7 +42,7 @@ public class CassandraPlainQueryTest extends CassandraBaseTest {
         List<String> collAddr = new ArrayList<String>();
         collAddr.add(addr);
         headers.put(CassandraConstants.CASSANDRA_CONTACT_POINTS, collAddr);
-        ResultSet result = (ResultSet) template.requestBodyAndHeaders("direct:in", body, headers);
+        ResultSet result = (ResultSet) template.requestBodyAndHeaders("direct:in", "", headers);
         assertEquals(result.getAvailableWithoutFetching(), 6);
         for (Row row : (ResultSet) result) {
             assertTrue(row.getString("album") != null); 
@@ -55,6 +55,7 @@ public class CassandraPlainQueryTest extends CassandraBaseTest {
         return new RouteBuilder() {
             public void configure() {
                 from("direct:in")
+                    .setBody(constant("SELECT id, album, title FROM songs"))
                     .to("cassandra:cassandraConnection?keyspace=simplex")
                     .to("mock:result");
             }

@@ -316,3 +316,58 @@ from("direct:in")
 ```
 
 This route will connect to the cassandra instance running on 127.0.0.1 and port 9042, and will decrement of 5 units the _like_ counter of the song with _id_ equal to 1, into the songs table of simplex keyspace.
+
+_Example 11_:
+
+```java
+
+String addr = "127.0.0.1";
+List<String> collAddr = new ArrayList<String>();
+collAddr.add(addr);
+    
+from("direct:in")
+    .setHeader(CassandraConstants.CASSANDRA_CONTACT_POINTS, constant(collAddr))
+    .setBody(constant("SELECT id, album, title FROM songs"))
+    .to("cassandra:cassandraConnection?keyspace=simplex")
+    .to("mock:result");
+
+```
+
+This route will connect to the cassandra instance running on 127.0.0.1 and port 9042, and will submit the plain query _SELECT id, album, title FROM songs_
+
+_Example 12_:
+
+```java
+
+String addr = "127.0.0.1";
+List<String> collAddr = new ArrayList<String>();
+collAddr.add(addr);
+
+List<Object[]> objectArrayList = new ArrayList<Object[]>();
+Object[] object = {7, "Fight Fire with Fire", "Ride the Lightning", "Metallica"};
+Object[] object1 = {8, "Ride the Lightning", "Ride the Lightning", "Metallica"};
+Object[] object2 = {9, "For Whom the Bell Tolls", "Ride the Lightning", "Metallica"};
+Object[] object3 = {10, "Fade To Black", "Ride the Lightning", "Metallica"};
+Object[] object4 = {11, "Trapped Under Ice", "Ride the Lightning", "Metallica"};
+Object[] object5 = {12, "Escape", "Ride the Lightning", "Metallica"};
+Object[] object6 = {13, "Creeping Death", "Ride the Lightning", "Metallica"};
+Object[] object7 = {14, "The Call of Ktulu", "Ride the Lightning", "Metallica"};
+objectArrayList.add(object);
+objectArrayList.add(object1);
+objectArrayList.add(object2);
+objectArrayList.add(object3);
+objectArrayList.add(object4);
+objectArrayList.add(object5);
+objectArrayList.add(object6);
+objectArrayList.add(object7);
+    
+from("direct:in")
+    .setHeader(CassandraConstants.CASSANDRA_CONTACT_POINTS, constant(collAddr))
+    .setHeader(CassandraConstants.CASSANDRA_BATCH_QUERY, constant("INSERT INTO songs (id, title, album, artist) VALUES (?, ?, ?, ?);"))
+    .setHeader(CassandraConstants.CASSANDRA_BATCH_QUERY_LIST, constant(objectArrayList))
+    .to("cassandra:cassandraConnection?keyspace=simplex&table=songs&operation=batchInsert")
+    .to("mock:result");
+
+```
+
+This route will connect to the cassandra instance running on 127.0.0.1 and port 9042, and will submit a batch Insert of 7 songs.
