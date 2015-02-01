@@ -14,15 +14,22 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.github.oscerd.camel.component.cassandra;
+package com.github.oscerd.component.cassandra;
 
-public enum CassandraOperator {
-    eq,
-    lt,
-    lte,
-    gt,
-    gte,
-    in,
-    asc,
-    desc
+public class CassandraException extends Exception {
+
+    private static final long serialVersionUID = 7834484945432331909L;
+
+    public CassandraException(String message, Throwable cause) {
+        super(message, cause);
+    }
+
+    public CassandraException(String message) {
+        super(message);
+    }
+
+    public CassandraException(Throwable cause) {
+        super(cause);
+    }
+
 }

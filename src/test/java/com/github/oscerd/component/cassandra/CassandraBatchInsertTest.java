@@ -14,7 +14,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.github.oscerd.camel.component.cassandra;
+package com.github.oscerd.component.cassandra;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -30,7 +30,7 @@ import com.datastax.driver.core.querybuilder.QueryBuilder;
 import com.datastax.driver.core.querybuilder.Select.Where;
 
 import org.apache.camel.builder.RouteBuilder;
-import com.github.oscerd.camel.component.cassandra.embedded.CassandraBaseTest;
+import com.github.oscerd.component.cassandra.embedded.CassandraBaseTest;
 import org.apache.camel.component.mock.MockEndpoint;
 import org.junit.Test;
 

@@ -15,4 +15,4 @@
 # limitations under the License.
 #
 
-class=com.github.oscerd.camel.component.cassandra.CassandraComponent
+class=com.github.oscerd.component.cassandra.CassandraComponent

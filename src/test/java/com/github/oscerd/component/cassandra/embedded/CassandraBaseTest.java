@@ -14,7 +14,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.github.oscerd.camel.component.cassandra.embedded;
+package com.github.oscerd.component.cassandra.embedded;
 
 import java.io.File;
 import java.util.ArrayList;
@@ -35,7 +35,7 @@ import io.teknek.farsandra.Farsandra;
 import io.teknek.farsandra.LineHandler;
 import io.teknek.farsandra.ProcessHandler;
 
-import com.github.oscerd.camel.component.cassandra.embedded.dto.Song;
+import com.github.oscerd.component.cassandra.embedded.dto.Song;
 
 import org.apache.camel.test.junit4.CamelTestSupport;
 import org.apache.commons.lang.RandomStringUtils;

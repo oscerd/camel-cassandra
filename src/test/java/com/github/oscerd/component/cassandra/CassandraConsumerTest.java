@@ -14,7 +14,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.github.oscerd.camel.component.cassandra;
+package com.github.oscerd.component.cassandra;
 
 import java.util.concurrent.TimeUnit;
 
@@ -23,7 +23,7 @@ import com.datastax.driver.core.ResultSet;
 import org.apache.camel.Exchange;
 import org.apache.camel.Processor;
 import org.apache.camel.builder.RouteBuilder;
-import com.github.oscerd.camel.component.cassandra.embedded.CassandraBaseTest;
+import com.github.oscerd.component.cassandra.embedded.CassandraBaseTest;
 import org.apache.camel.component.mock.MockEndpoint;
 import org.junit.Test;
 

@@ -14,7 +14,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.github.oscerd.camel.component.cassandra;
+package com.github.oscerd.component.cassandra;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -22,37 +22,44 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import com.datastax.driver.core.Cluster;
 import com.datastax.driver.core.ResultSet;
 import com.datastax.driver.core.Row;
+import com.datastax.driver.core.Session;
+import com.datastax.driver.core.querybuilder.QueryBuilder;
+import com.datastax.driver.core.querybuilder.Select;
 
 import org.apache.camel.builder.RouteBuilder;
-import com.github.oscerd.camel.component.cassandra.embedded.CassandraBaseTest;
+import com.github.oscerd.component.cassandra.embedded.CassandraBaseTest;
 import org.apache.camel.component.mock.MockEndpoint;
 import org.junit.Test;
 
-public class CassandraSelectColumnTest extends CassandraBaseTest {
+public class CassandraDeleteColumnWhereTest extends CassandraBaseTest {
 
     @Test
-    public void testSelectColumn() throws IOException, InterruptedException {
+    public void testDeleteColumnWhere() throws IOException, InterruptedException {
         MockEndpoint mock = getMockEndpoint("mock:result");
         mock.expectedMessageCount(1);
-        List<String> titleList = new ArrayList<String>();
-        titleList.add("3 Days In Darkness");
-        titleList.add("DNR");
-        titleList.add("Down For Life");
-        titleList.add("True Believer");
-        titleList.add("Riding The Snake");
-        titleList.add("One for sorrow");
         String body = "";
         Map<String, Object> headers = new HashMap<String, Object>();
         String addr = "127.0.0.1";
         List<String> collAddr = new ArrayList<String>();
         collAddr.add(addr);
         headers.put(CassandraConstants.CASSANDRA_CONTACT_POINTS, collAddr);
-        headers.put(CassandraConstants.CASSANDRA_SELECT_COLUMN, "title");
-        ResultSet result = (ResultSet) template.requestBodyAndHeaders("direct:in", body, headers);
-        for (Row row : result) {
-            assertTrue(titleList.contains(row.getString("title")));
+        headers.put(CassandraConstants.CASSANDRA_DELETE_COLUMN, "tags");
+        headers.put(CassandraConstants.CASSANDRA_WHERE_COLUMN, "id");
+        headers.put(CassandraConstants.CASSANDRA_WHERE_VALUE, 6);
+        headers.put(CassandraConstants.CASSANDRA_OPERATOR, "eq");
+        ResultSet result = (ResultSet) template.requestBodyAndHeaders("direct:in", body , headers); 
+        assertEquals(result.isExhausted(), true);
+        Cluster cluster = Cluster.builder().addContactPoint("127.0.0.1").build();
+        Session session = cluster.connect("simplex");
+        Select.Where select = QueryBuilder.select().all().from("songs").where(QueryBuilder.eq("id", 6));
+        result = session.execute(select);
+        session.close();
+        cluster.close();
+        for (Row row : (ResultSet) result) {
+            assertTrue(row.getSet("tags", String.class).isEmpty());
         }
         assertMockEndpointsSatisfied();
     }
@@ -61,7 +68,7 @@ public class CassandraSelectColumnTest extends CassandraBaseTest {
         return new RouteBuilder() {
             public void configure() {
                 from("direct:in")
-                    .to("cassandra:cassandraConnection?keyspace=simplex&table=songs&operation=selectColumn")
+                    .to("cassandra:cassandraConnection?keyspace=simplex&table=songs&operation=deleteColumnWhere")
                     .to("mock:result");
             }
         };

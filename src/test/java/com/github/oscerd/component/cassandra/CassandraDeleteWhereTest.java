@@ -14,7 +14,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.github.oscerd.camel.component.cassandra;
+package com.github.oscerd.component.cassandra;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -22,32 +22,41 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import com.datastax.driver.core.Cluster;
 import com.datastax.driver.core.ResultSet;
-import com.datastax.driver.core.Row;
+import com.datastax.driver.core.Session;
+import com.datastax.driver.core.querybuilder.QueryBuilder;
+import com.datastax.driver.core.querybuilder.Select;
 
 import org.apache.camel.builder.RouteBuilder;
-import com.github.oscerd.camel.component.cassandra.embedded.CassandraBaseTest;
+import com.github.oscerd.component.cassandra.embedded.CassandraBaseTest;
 import org.apache.camel.component.mock.MockEndpoint;
 import org.junit.Test;
 
-public class CassandraPlainQueryTest extends CassandraBaseTest {
+public class CassandraDeleteWhereTest extends CassandraBaseTest {
 
     @Test
-    public void testPlainQuery() throws IOException, InterruptedException {
+    public void testDelete() throws IOException, InterruptedException {
         MockEndpoint mock = getMockEndpoint("mock:result");
         mock.expectedMessageCount(1);
-        String body = "SELECT id, album, title FROM songs";
+        String body = "";
         Map<String, Object> headers = new HashMap<String, Object>();
         String addr = "127.0.0.1";
         List<String> collAddr = new ArrayList<String>();
         collAddr.add(addr);
         headers.put(CassandraConstants.CASSANDRA_CONTACT_POINTS, collAddr);
-        ResultSet result = (ResultSet) template.requestBodyAndHeaders("direct:in", body, headers);
-        assertEquals(result.getAvailableWithoutFetching(), 6);
-        for (Row row : (ResultSet) result) {
-            assertTrue(row.getString("album") != null); 
-            assertTrue(row.getString("title") != null); 
-        }
+        headers.put(CassandraConstants.CASSANDRA_WHERE_COLUMN, "id");
+        headers.put(CassandraConstants.CASSANDRA_WHERE_VALUE, 6);
+        headers.put(CassandraConstants.CASSANDRA_OPERATOR, "eq");
+        ResultSet result = (ResultSet) template.requestBodyAndHeaders("direct:in", body, headers); 
+        assertEquals(result.isExhausted(), true);
+        Cluster cluster = Cluster.builder().addContactPoint("127.0.0.1").build();
+        Session session = cluster.connect("simplex");
+        Select select = QueryBuilder.select().all().from("songs");
+        result = session.execute(select);
+        session.close();
+        cluster.close();
+        assertEquals(result.getAvailableWithoutFetching(), 5);
         assertMockEndpointsSatisfied();
     }
 
@@ -55,7 +64,7 @@ public class CassandraPlainQueryTest extends CassandraBaseTest {
         return new RouteBuilder() {
             public void configure() {
                 from("direct:in")
-                    .to("cassandra:cassandraConnection?keyspace=simplex")
+                    .to("cassandra:cassandraConnection?keyspace=simplex&table=songs&operation=deleteWhere")
                     .to("mock:result");
             }
         };

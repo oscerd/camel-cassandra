@@ -14,47 +14,46 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.github.oscerd.camel.component.cassandra;
+package com.github.oscerd.component.cassandra;
 
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 
 import com.datastax.driver.core.ResultSet;
+import com.datastax.driver.core.Row;
 
 import org.apache.camel.builder.RouteBuilder;
-import com.github.oscerd.camel.component.cassandra.embedded.CassandraBaseTest;
+import com.github.oscerd.component.cassandra.embedded.CassandraBaseTest;
 import org.apache.camel.component.mock.MockEndpoint;
 import org.junit.Test;
 
-public class CassandraInsertTest extends CassandraBaseTest {
+public class CassandraSelectColumnTest extends CassandraBaseTest {
 
     @Test
-    public void testInsert() throws IOException, InterruptedException {
+    public void testSelectColumn() throws IOException, InterruptedException {
         MockEndpoint mock = getMockEndpoint("mock:result");
         mock.expectedMessageCount(1);
+        List<String> titleList = new ArrayList<String>();
+        titleList.add("3 Days In Darkness");
+        titleList.add("DNR");
+        titleList.add("Down For Life");
+        titleList.add("True Believer");
+        titleList.add("Riding The Snake");
+        titleList.add("One for sorrow");
         String body = "";
         Map<String, Object> headers = new HashMap<String, Object>();
         String addr = "127.0.0.1";
         List<String> collAddr = new ArrayList<String>();
         collAddr.add(addr);
         headers.put(CassandraConstants.CASSANDRA_CONTACT_POINTS, collAddr);
-        Set<String> tags = new HashSet<String>();
-        tags.add("2003");
-        tags.add("Trash");
-        HashMap<String, Object> insert = new HashMap<String, Object>();
-        insert.put("id", 6);
-        insert.put("album", "St. Anger");
-        insert.put("title", "St. Anger");
-        insert.put("artist", "Metallica");
-        insert.put("tags", tags);
-        headers.put(CassandraConstants.CASSANDRA_INSERT_OBJECT, insert);
-        ResultSet result = (ResultSet) template.requestBodyAndHeaders("direct:in", body, headers); 
-        assertEquals(result.isExhausted(), true);
+        headers.put(CassandraConstants.CASSANDRA_SELECT_COLUMN, "title");
+        ResultSet result = (ResultSet) template.requestBodyAndHeaders("direct:in", body, headers);
+        for (Row row : result) {
+            assertTrue(titleList.contains(row.getString("title")));
+        }
         assertMockEndpointsSatisfied();
     }
 
@@ -62,7 +61,7 @@ public class CassandraInsertTest extends CassandraBaseTest {
         return new RouteBuilder() {
             public void configure() {
                 from("direct:in")
-                    .to("cassandra:cassandraConnection?keyspace=simplex&table=songs&operation=insert")
+                    .to("cassandra:cassandraConnection?keyspace=simplex&table=songs&operation=selectColumn")
                     .to("mock:result");
             }
         };

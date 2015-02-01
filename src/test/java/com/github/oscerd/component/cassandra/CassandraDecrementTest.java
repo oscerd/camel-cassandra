@@ -14,7 +14,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.github.oscerd.camel.component.cassandra;
+package com.github.oscerd.component.cassandra;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -30,14 +30,14 @@ import com.datastax.driver.core.querybuilder.QueryBuilder;
 import com.datastax.driver.core.querybuilder.Select;
 
 import org.apache.camel.builder.RouteBuilder;
-import com.github.oscerd.camel.component.cassandra.embedded.CassandraBaseTest;
+import com.github.oscerd.component.cassandra.embedded.CassandraBaseCounterTest;
 import org.apache.camel.component.mock.MockEndpoint;
 import org.junit.Test;
 
-public class CassandraUpdateTest extends CassandraBaseTest {
+public class CassandraDecrementTest extends CassandraBaseCounterTest {
 
     @Test
-    public void testUpdate() throws IOException, InterruptedException {
+    public void testDecrementCounter() throws IOException, InterruptedException {
         MockEndpoint mock = getMockEndpoint("mock:result");
         mock.expectedMessageCount(1);
         String body = "";
@@ -46,24 +46,21 @@ public class CassandraUpdateTest extends CassandraBaseTest {
         List<String> collAddr = new ArrayList<String>();
         collAddr.add(addr);
         headers.put(CassandraConstants.CASSANDRA_CONTACT_POINTS, collAddr);
-        HashMap<String, Object> updatingObject = new HashMap<String, Object>();
-        updatingObject.put("album", "Low");
-        updatingObject.put("title", "Low");
+        headers.put(CassandraConstants.CASSANDRA_COUNTER_COLUMN, "like");
+        headers.put(CassandraConstants.CASSANDRA_COUNTER_VALUE, new Long(5));
         headers.put(CassandraConstants.CASSANDRA_WHERE_COLUMN, "id");
         headers.put(CassandraConstants.CASSANDRA_WHERE_VALUE, 1);
         headers.put(CassandraConstants.CASSANDRA_OPERATOR, "eq");
-        headers.put(CassandraConstants.CASSANDRA_UPDATE_OBJECT, updatingObject);
-        ResultSet result = (ResultSet) template.requestBodyAndHeaders("direct:in", body, headers);
-        assertEquals(result.wasApplied(), true);
+        ResultSet result = (ResultSet) template.requestBodyAndHeaders("direct:in", body , headers); 
+        assertEquals(result.isExhausted(), true);
         Cluster cluster = Cluster.builder().addContactPoint("127.0.0.1").build();
         Session session = cluster.connect("simplex");
-        Select.Where select = QueryBuilder.select().all().from("songs").where(QueryBuilder.eq("id", 1));
+        Select.Where select = QueryBuilder.select().all().from("counter").where(QueryBuilder.eq("id", 1));
         result = session.execute(select);
         session.close();
         cluster.close();
         for (Row row : (ResultSet) result) {
-            assertEquals(row.getString("album"), "Low");
-            assertEquals(row.getString("title"), "Low");
+            assertEquals(row.getLong("like"), -4);
         }
         assertMockEndpointsSatisfied();
     }
@@ -72,7 +69,7 @@ public class CassandraUpdateTest extends CassandraBaseTest {
         return new RouteBuilder() {
             public void configure() {
                 from("direct:in")
-                    .to("cassandra:simplex?keyspace=simplex&table=songs&operation=update")
+                    .to("cassandra:cassandraConnection?keyspace=simplex&table=counter&operation=decrCounter")
                     .to("mock:result");
             }
         };
