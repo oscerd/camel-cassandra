@@ -179,5 +179,56 @@ from("direct:in")
 
 This route will connect to the cassandra instance running on 127.0.0.1 and port 9042, and will query for title column on all the rows on the keyspace simplex and table songs, where the album column is equal to "The gathering". Obviously we need to ensure index on the columns _album_ and _title_ to make this query works.
 
- 
+_Example 5_:
+
+```java
+
+String addr = "127.0.0.1";
+List<String> collAddr = new ArrayList<String>();
+collAddr.add(addr);
+
+Set<String> tags = new HashSet<String>();
+tags.add("2003");
+tags.add("Trash");
+HashMap<String, Object> insert = new HashMap<String, Object>();
+insert.put("id", 6);
+insert.put("album", "St. Anger");
+insert.put("title", "St. Anger");
+insert.put("artist", "Metallica");
+insert.put("tags", tags);
+    
+from("direct:in")
+    .setHeader(CassandraConstants.CASSANDRA_CONTACT_POINTS, constant(collAddr))
+    .setHeader(CassandraConstants.CASSANDRA_INSERT_OBJECT, constant(insert))
+    .to("cassandra:cassandraConnection?keyspace=simplex&table=songs&operation=insert")
+    .to("mock:result");
+
+```
+
+This route will connect to the cassandra instance running on 127.0.0.1 and port 9042, and will insert a song into the songs table of simplex keyspace.
+
+_Example 6_:
+
+```java
+
+String addr = "127.0.0.1";
+List<String> collAddr = new ArrayList<String>();
+collAddr.add(addr);
+
+HashMap<String, Object> updatingObject = new HashMap<String, Object>();
+updatingObject.put("album", "Low");
+updatingObject.put("title", "Low");
+    
+from("direct:in")
+    .setHeader(CassandraConstants.CASSANDRA_CONTACT_POINTS, constant(collAddr))
+    .setHeader(CassandraConstants.CASSANDRA_WHERE_COLUMN, constant("id"))
+    .setHeader(CassandraConstants.CASSANDRA_WHERE_VALUE, constant(1))
+    .setHeader(CassandraConstants.CASSANDRA_OPERATOR, constant("eq"))
+    .setHeader(CassandraConstants.CASSANDRA_UPDATE_OBJECT, constant(updatingObject))
+    .to("cassandra:simplex?keyspace=simplex&table=songs&operation=update")
+    .to("mock:result");
+
+```
+
+This route will connect to the cassandra instance running on 127.0.0.1 and port 9042, and will update the song with _id_ equal to 1 into the songs table of simplex keyspace, changing the _album_ and _title_ columns. 
 
