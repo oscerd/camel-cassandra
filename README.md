@@ -139,3 +139,23 @@ from("direct:in")
 
 This route will connect to the cassandra instance running on 127.0.0.1 and port 9042, and will query all rows on the keyspace simplex and table songs where the column _album_ is equal to "The gathering". 
 Obviously we need to ensure index on the column album to make this query works.
+
+_Example 3_:
+
+```java
+
+String addr = "127.0.0.1";
+List<String> collAddr = new ArrayList<String>();
+collAddr.add(addr);
+    
+from("direct:in")
+    .setHeader(CassandraConstants.CASSANDRA_CONTACT_POINTS, constant(collAddr))
+    .setHeader(CassandraConstants.CASSANDRA_SELECT_COLUMN, constant("title"))
+    .to("cassandra:cassandraConnection?keyspace=simplex&table=songs&operation=selectColumn")
+    .to("mock:result");
+
+```
+
+This route will connect to the cassandra instance running on 127.0.0.1 and port 9042, and will query for title column on all the rows on the keyspace simplex and table songs.
+
+
