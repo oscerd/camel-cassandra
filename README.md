@@ -230,5 +230,45 @@ from("direct:in")
 
 ```
 
-This route will connect to the cassandra instance running on 127.0.0.1 and port 9042, and will update the song with _id_ equal to 1 into the songs table of simplex keyspace, changing the _album_ and _title_ columns. 
+This route will connect to the cassandra instance running on 127.0.0.1 and port 9042, and will update the song with _id_ equal to 1 into the songs table of simplex keyspace, changing the _album_ and _title_ columns.
 
+_Example 7_:
+
+```java
+
+String addr = "127.0.0.1";
+List<String> collAddr = new ArrayList<String>();
+collAddr.add(addr);
+    
+from("direct:in")
+    .setHeader(CassandraConstants.CASSANDRA_CONTACT_POINTS, constant(collAddr))
+    .setHeader(CassandraConstants.CASSANDRA_WHERE_COLUMN, constant("id"))
+    .setHeader(CassandraConstants.CASSANDRA_WHERE_VALUE, constant(6))
+    .setHeader(CassandraConstants.CASSANDRA_OPERATOR, constant("eq"))
+    .to("cassandra:cassandraConnection?keyspace=simplex&table=songs&operation=deleteWhere")
+    .to("mock:result");
+
+```
+
+This route will connect to the cassandra instance running on 127.0.0.1 and port 9042, and will delete the song with _id_ equal to 6 into the songs table of simplex keyspace.
+
+_Example 8_:
+
+```java
+
+String addr = "127.0.0.1";
+List<String> collAddr = new ArrayList<String>();
+collAddr.add(addr);
+    
+from("direct:in")
+    .setHeader(CassandraConstants.CASSANDRA_CONTACT_POINTS, constant(collAddr))
+    .setHeader(CassandraConstants.CASSANDRA_WHERE_COLUMN, constant("id"))
+    .setHeader(CassandraConstants.CASSANDRA_WHERE_VALUE, constant(6))
+    .setHeader(CassandraConstants.CASSANDRA_OPERATOR, constant("eq"))
+    .setHeader(CassandraConstants.CASSANDRA_DELETE_COLUMN, constant("tags"))
+    .to("cassandra:cassandraConnection?keyspace=simplex&table=songs&operation=deleteColumnWhere")
+    .to("mock:result");
+
+```
+
+This route will connect to the cassandra instance running on 127.0.0.1 and port 9042, and will delete the column _tags_ of the song with _id_ equal to 6 into the songs table of simplex keyspace.
