@@ -17,7 +17,7 @@
 	<name>Camel :: Cassandra</name>
 	<description>Camel Cassandra support</description>
 	<groupId>com.github.oscerd</groupId>
-	<version>1.0.0-SNAPSHOT</version>
+	<version>1.0.0</version>
 
 	<properties>
 		<camel.core.version>2.14.1</camel.core.version>
