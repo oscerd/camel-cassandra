@@ -16,6 +16,9 @@
  */
 package com.github.oscerd.component.cassandra;
 
+/**
+ * Represents the Operators used by {@link CassandraComponent}.
+ */
 public enum CassandraOperator {
     eq,
     lt,

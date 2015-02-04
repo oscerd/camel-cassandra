@@ -16,6 +16,9 @@
  */
 package com.github.oscerd.component.cassandra;
 
+/**
+ * Represents the possible operations used by {@link CassandraProducer}.
+ */
 public enum CassandraOperations {
     selectAll,
     selectAllWhere,
