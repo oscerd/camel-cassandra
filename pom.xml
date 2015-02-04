@@ -9,8 +9,7 @@
 	License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS 
 	OF ANY KIND, either express or implied. See the License for the specific 
 	language governing permissions and limitations under the License. -->
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
 	<modelVersion>4.0.0</modelVersion>
 
 	<artifactId>camel-cassandra</artifactId>
@@ -18,7 +17,7 @@
 	<name>Camel :: Cassandra</name>
 	<description>Camel Cassandra support</description>
 	<groupId>com.github.oscerd</groupId>
-	<version>1.0.0-SNAPSHOT</version>
+	<version>1.0.0</version>
 
 	<properties>
 		<camel.core.version>2.14.1</camel.core.version>
@@ -45,7 +44,8 @@
 		<url>https://github.com/oscerd/camel-cassandra</url>
 		<connection>scm:git:https://github.com/oscerd/camel-cassandra.git</connection>
 		<developerConnection>scm:git:https://oscerd@github.com/oscerd/camel-cassandra.git</developerConnection>
-	</scm>
+	  <tag>camel-cassandra-1.0.0</tag>
+  </scm>
 
 	<distributionManagement>
 		<snapshotRepository>
