@@ -15,9 +15,10 @@
 	<artifactId>camel-cassandra</artifactId>
 	<packaging>bundle</packaging>
 	<name>Camel :: Cassandra</name>
-	<description>Camel Cassandra support</description>
+	<description>Camel Cassandra Component</description>
 	<groupId>com.github.oscerd</groupId>
-	<version>1.0.1-SNAPSHOT</version>
+	<version>1.0.0-SNAPSHOT</version>
+	<url>https://github.com/oscerd/camel-cassandra</url>
 
 	<properties>
 		<camel.core.version>2.14.1</camel.core.version>
@@ -37,6 +38,7 @@
 		<license>
 			<name>Apache License, Version 2.0</name>
 			<url>http://www.apache.org/licenses/LICENSE-2.0.txt</url>
+			<distribution>repo</distribution>
 		</license>
 	</licenses>
 
@@ -44,8 +46,23 @@
 		<url>https://github.com/oscerd/camel-cassandra</url>
 		<connection>scm:git:https://github.com/oscerd/camel-cassandra.git</connection>
 		<developerConnection>scm:git:https://oscerd@github.com/oscerd/camel-cassandra.git</developerConnection>
-	  <tag>camel-cassandra-1.0.0</tag>
-  </scm>
+  	</scm>
+
+	<developers>
+		<developer>
+			<id>oscerd</id>
+			<name>Andrea Cosentino</name>
+			<email>ancosen1985@yahoo.com</email>
+			<url />
+			<organization />
+			<organizationUrl />
+			<roles>
+				<role>architect</role>
+				<role>developer</role>
+			</roles>
+			<timezone>Europe/Rome</timezone>
+		</developer>
+	</developers>
 
 	<distributionManagement>
 		<snapshotRepository>
