@@ -90,7 +90,7 @@ karaf@root> osgi:install -s mvn:com.github.oscerd/camel-cassandra/1.0.0
 
 ```
 
-Now we are ready to deploy bundle based on camel-cassandra component. See [Code Example](Code Examples) section for a ready bundle to use.
+Now we are ready to deploy bundle based on camel-cassandra component. See [Code Example](#Code Examples) section for a ready bundle to use.
 
 # URI format
 
