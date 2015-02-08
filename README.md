@@ -462,3 +462,11 @@ This route will connect to the cassandra instance running on 127.0.0.1 and port 
 
 - https://github.com/oscerd/camel-cassandra-example: A simple Camel Route using Camel-cassandra component
 - https://github.com/oscerd/camel-cassandra-servicemix-example: A simple Camel Route, to be deployed on ServiceMix, using Camel-cassandra component.
+
+# ToDo List
+
+- Add support for username/password authentication to cassandra
+- Add support for Cluster/Session bean reference
+- Improve Batch operation support (one message, multiple different batch operations)
+- Improve testing
+- Define a ResultSet conversion parameter
