@@ -8,6 +8,90 @@ Apache Cassandra is an open source distributed database management system design
 
 The camel-cassandra component integrates Camel with Cassandra allowing you to interact with Cassandra keyspace both as a producer (performing operations on the keyspace tables) and as a consumer (consuming rows from keyspace tables).
 
+# Usage
+
+Maven users will need to add the following dependency to their pom.xml for this component:
+
+<dependency>
+    <groupId>com.github.oscerd</groupId>
+    <artifactId>camel-cassandra</artifactId>
+    <version>1.0.0</version>
+</dependency>
+
+The first release uses camel-core version 2.14.1 as dependency.
+
+# Use this component on Apache Servicemix
+
+Camel-Cassandra component is based on camel-core 2.14.1 release. So we need to use an Apache Servicemix version based on this release.
+
+The Apache Servicemix 5.4.0 is the correct release.
+
+- Download the Apache Servicemix 5.4.0 package from: http://servicemix.apache.org/downloads/servicemix-5.4.0.html
+
+- Unzip the package in a directory (we denote this folder with $SERVICEMIX_HOME)
+
+- Execute $SERVICEMIX_HOME/bin/servicemix
+
+- Inside Karaf execute the following instructions:
+
+- __Install Google Guava Bundle__
+
+```shell
+
+karaf@root> osgi:install -s mvn:com.google.guava/guava/16.0.1
+
+```
+
+- __Install codahale metrics Bundle__
+
+```shell
+
+karaf@root> osgi:install -s mvn:com.codahale.metrics/metrics-core/3.0.2
+
+```
+
+- __Install Netty Bundle__
+
+```shell
+
+karaf@root> osgi:install -s mvn:io.netty/netty/3.9.0.Final
+
+```
+
+- __Install lz4 Bundle__
+
+```shell
+
+karaf@root> osgi:install -s mvn:net.jpountz.lz4/lz4/1.2.0
+
+```
+
+- __Install Snappy Java Bundle__
+
+```shell
+
+karaf@root> osgi:install -s mvn:org.xerial.snappy/snappy-java/1.0.4
+
+```
+
+- __Install Datastax Java Driver Bundle__
+
+```shell
+
+karaf@root> osgi:install -s mvn:com.datastax.cassandra/cassandra-driver-core/2.1.1
+
+```
+
+- __Install Camel Cassandra Bundle__ 
+
+```shell
+
+karaf@root> osgi:install -s mvn:com.github.oscerd/camel-cassandra/1.0.0
+
+```
+
+Now we are ready to deploy bundle based on camel-cassandra component. See [Code Example](Code Examples) section for a ready bundle to use.
+
 # URI format
 
 ```
@@ -375,3 +459,4 @@ This route will connect to the cassandra instance running on 127.0.0.1 and port 
 # Code Examples
 
 - https://github.com/oscerd/camel-cassandra-example: A simple Camel Route using Camel-cassandra component
+- https://github.com/oscerd/camel-cassandra-servicemix-example: A simple Camel Route, to be deployed on ServiceMix, using Camel-cassandra component.
