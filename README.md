@@ -12,11 +12,13 @@ The camel-cassandra component integrates Camel with Cassandra allowing you to in
 
 Maven users will need to add the following dependency to their pom.xml for this component:
 
+```xml
 <dependency>
     <groupId>com.github.oscerd</groupId>
     <artifactId>camel-cassandra</artifactId>
     <version>1.0.0</version>
 </dependency>
+```
 
 The first release uses camel-core version 2.14.1 as dependency.
 
