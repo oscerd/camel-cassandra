@@ -69,14 +69,7 @@ public class CassandraProducer extends DefaultProducer {
     */
     public void process(Exchange exchange) throws Exception {
         Cluster cassandra = endpoint.getCassandraCluster();
-        List<String> contact = (List<String>) exchange.getIn().getHeader(CassandraConstants.CASSANDRA_CONTACT_POINTS);
-        Collection<InetAddress> contactPoints = getInetAddress(contact);
-        String cassandraPort = (String) exchange.getIn().getHeader(CassandraConstants.CASSANDRA_PORT);
-        if (cassandraPort == null) {
-            cassandra = Cluster.builder().addContactPoints(contactPoints).build();
-        } else {
-            cassandra = Cluster.builder().addContactPoints(contactPoints).withPort(Integer.parseInt(cassandraPort)).build();
-        }
+        cassandra = buildCluster(cassandra, endpoint, exchange);
         String body = (String) exchange.getIn().getBody();
         if (body != null && !ObjectHelper.isEmpty(body)) {
             Session session = cassandra.connect(endpoint.getKeyspace());
@@ -681,5 +674,22 @@ public class CassandraProducer extends DefaultProducer {
             break;
         }
         return cassOperator;
+    }
+    
+    private Cluster buildCluster(Cluster clusterBuilded, CassandraEndpoint endpoint, Exchange exchange) throws UnknownHostException{
+        List<String> contact = (List<String>) exchange.getIn().getHeader(CassandraConstants.CASSANDRA_CONTACT_POINTS);
+        Collection<InetAddress> contactPoints = getInetAddress(contact);
+        String cassandraPort = (String) exchange.getIn().getHeader(CassandraConstants.CASSANDRA_PORT);
+        Cluster.Builder builder;
+        if (cassandraPort == null) {
+        	builder = Cluster.builder().addContactPoints(contactPoints);
+        } else {
+        	builder = Cluster.builder().addContactPoints(contactPoints).withPort(Integer.parseInt(cassandraPort));
+        }
+        if (!endpoint.getUsername().isEmpty() && !endpoint.getPassword().isEmpty()){
+        	builder.withCredentials(endpoint.getUsername(), endpoint.getPassword());
+        }
+        clusterBuilded = builder.build();
+        return clusterBuilded;
     }
 }

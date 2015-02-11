@@ -37,6 +37,8 @@ public class CassandraEndpoint extends DefaultEndpoint {
     private String host;
     private String port;
     private String pollingQuery;
+    private String username;
+    private String password;
 
     public CassandraEndpoint() {
     }
@@ -113,7 +115,23 @@ public class CassandraEndpoint extends DefaultEndpoint {
         return operation;
     }
 
-    public void setOperation(String operation) throws CassandraException {
+    public String getUsername() {
+		return username;
+	}
+
+	public void setUsername(String username) {
+		this.username = username;
+	}
+
+	public String getPassword() {
+		return password;
+	}
+
+	public void setPassword(String password) {
+		this.password = password;
+	}
+
+	public void setOperation(String operation) throws CassandraException {
         try {
             this.operation = CassandraOperations.valueOf(operation);
         } catch (IllegalArgumentException e) {
