@@ -31,19 +31,20 @@ import org.apache.camel.impl.DefaultEndpoint;
 public class CassandraEndpoint extends DefaultEndpoint {
 
     private Cluster cassandraCluster;
-    private String keyspace;
-    private String table;
+    private String beanRef = "";
+    private String keyspace = "";
+    private String table = "";
     private CassandraOperations operation;
-    private String host;
-    private String port;
-    private String pollingQuery;
-    private String username;
-    private String password;
+    private String host = "";
+    private String port = "";
+    private String pollingQuery = "";
+    private String username = "";
+    private String password = "";
 
     public CassandraEndpoint() {
     }
 
-    public CassandraEndpoint(String uri, CassandraComponent component, String remanining) {
+    public CassandraEndpoint(String uri, CassandraComponent component, String remaining) {
         super(uri, component);
     }
 
@@ -114,6 +115,14 @@ public class CassandraEndpoint extends DefaultEndpoint {
     public CassandraOperations getOperation() {
         return operation;
     }
+    
+	public void setOperation(String operation) throws CassandraException {
+        try {
+            this.operation = CassandraOperations.valueOf(operation);
+        } catch (IllegalArgumentException e) {
+            throw new CassandraException("Operation not supported", e);
+        }
+    }
 
     public String getUsername() {
 		return username;
@@ -131,11 +140,11 @@ public class CassandraEndpoint extends DefaultEndpoint {
 		this.password = password;
 	}
 
-	public void setOperation(String operation) throws CassandraException {
-        try {
-            this.operation = CassandraOperations.valueOf(operation);
-        } catch (IllegalArgumentException e) {
-            throw new CassandraException("Operation not supported", e);
-        }
-    }
+	public String getBeanRef() {
+		return beanRef;
+	}
+
+	public void setBeanRef(String beanRef) {
+		this.beanRef = beanRef;
+	}
 }

@@ -34,6 +34,11 @@ public class CassandraComponent extends DefaultComponent {
     protected Endpoint createEndpoint(String uri, String remaining, Map<String, Object> parameters) throws Exception {
         CassandraEndpoint endpoint = new CassandraEndpoint(uri, this, remaining);
         setProperties(endpoint, parameters);
+        // if its a bean reference to either a cluster/session then lookup
+        if (remaining.startsWith("bean:")) {
+            String beanRef = remaining.substring(5);
+            endpoint.setBeanRef(beanRef);
+        } 
         return endpoint;
     }
     

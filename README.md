@@ -470,3 +470,4 @@ This route will connect to the cassandra instance running on 127.0.0.1 and port 
 - Improve Batch operation support (one message, multiple different batch operations)
 - Improve testing
 - Define a ResultSet conversion parameter
+- Adding limit parameter

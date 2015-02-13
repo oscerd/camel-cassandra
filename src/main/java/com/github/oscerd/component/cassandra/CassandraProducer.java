@@ -40,6 +40,7 @@ import com.datastax.driver.core.querybuilder.Update.Assignments;
 import org.apache.camel.Exchange;
 import org.apache.camel.Message;
 import org.apache.camel.impl.DefaultProducer;
+import org.apache.camel.util.CamelContextHelper;
 import org.apache.camel.util.MessageHelper;
 import org.apache.camel.util.ObjectHelper;
 import org.slf4j.Logger;
@@ -69,7 +70,16 @@ public class CassandraProducer extends DefaultProducer {
     */
     public void process(Exchange exchange) throws Exception {
         Cluster cassandra = endpoint.getCassandraCluster();
-        cassandra = buildCluster(cassandra, endpoint, exchange);
+        if (endpoint.getBeanRef().isEmpty()){
+        	cassandra = buildCluster(cassandra, endpoint, exchange);
+        } else {
+        	Object bean = CamelContextHelper.mandatoryLookup(endpoint.getCamelContext(), endpoint.getBeanRef());
+        	if (bean instanceof Cluster) {
+        		cassandra = (Cluster) bean;
+            } else {
+                throw CassandraComponent.wrapInCamelCassandraException(new CassandraException("Bean must be of type Cluster"));        			
+            }
+        }
         String body = (String) exchange.getIn().getBody();
         if (body != null && !ObjectHelper.isEmpty(body)) {
             Session session = cassandra.connect(endpoint.getKeyspace());
