@@ -36,7 +36,6 @@ public class CassandraPlainQueryTest extends CassandraBaseTest {
     public void testPlainQuery() throws IOException, InterruptedException {
         MockEndpoint mock = getMockEndpoint("mock:result");
         mock.expectedMessageCount(1);
-        String body = "SELECT id, album, title FROM songs";
         Map<String, Object> headers = new HashMap<String, Object>();
         String addr = "127.0.0.1";
         List<String> collAddr = new ArrayList<String>();
