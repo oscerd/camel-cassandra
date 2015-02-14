@@ -35,7 +35,7 @@ import com.github.oscerd.component.cassandra.embedded.CassandraBaseTest;
 public class CassandraBeanRefExceptionTest extends CassandraBaseTest {
 
     @Test(expected=CamelExecutionException.class)
-    public void testInsert() throws IOException, InterruptedException {
+    public void testBeanRefCamelExecutionException() throws IOException, InterruptedException {
         MockEndpoint mock = getMockEndpoint("mock:result");
         mock.expectedMessageCount(1);
         String body = "";

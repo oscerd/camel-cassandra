@@ -16,115 +16,118 @@
  */
 package com.github.oscerd.component.cassandra;
 
-import com.datastax.driver.core.Cluster;
-
 import org.apache.camel.Consumer;
 import org.apache.camel.Processor;
 import org.apache.camel.Producer;
 import org.apache.camel.impl.DefaultEndpoint;
+import org.apache.camel.util.ObjectHelper;
+
+import com.datastax.driver.core.Cluster;
 
 /**
  * Represents a Cassandra endpoint. It is responsible for creating
- * {@link CassandraProducer} instances. It accepts a number of options to customise the behaviour of
- * consumers and producers.
+ * {@link CassandraProducer} instances. It accepts a number of options to
+ * customise the behaviour of consumers and producers.
  */
 public class CassandraEndpoint extends DefaultEndpoint {
 
-    private Cluster cassandraCluster;
-    private String beanRef = "";
-    private String keyspace = "";
-    private String table = "";
-    private CassandraOperations operation;
-    private String host = "";
-    private String port = "";
-    private String pollingQuery = "";
-    private String username = "";
-    private String password = "";
+	private Cluster cassandraCluster;
+	private String beanRef;
+	private String keyspace;
+	private String table;
+	private CassandraOperations operation;
+	private String host;
+	private String port;
+	private String pollingQuery;
+	private String username;
+	private String password;
 
-    public CassandraEndpoint() {
-    }
+	public CassandraEndpoint() {
+	}
 
-    public CassandraEndpoint(String uri, CassandraComponent component, String remaining) {
-        super(uri, component);
-    }
+	public CassandraEndpoint(String uri, CassandraComponent component,
+			String remaining) {
+		super(uri, component);
+	}
 
-    @Override
-    public Producer createProducer() throws Exception {
-        return new CassandraProducer(this);
-    }
+	@Override
+	public Producer createProducer() throws Exception {
+		validateProducer();
+		return new CassandraProducer(this);
+	}
 
-    @Override
-    public Consumer createConsumer(Processor processor) throws Exception {
-        return new CassandraConsumer(this, processor);
-    }
+	@Override
+	public Consumer createConsumer(Processor processor) throws Exception {
+		return new CassandraConsumer(this, processor);
+	}
 
-    @Override
-    public boolean isSingleton() {
-        // TODO Auto-generated method stub
-        return false;
-    }
+	@Override
+	public boolean isSingleton() {
+		// TODO Auto-generated method stub
+		return false;
+	}
 
-    public Cluster getCassandraCluster() {
-        return cassandraCluster;
-    }
+	public Cluster getCassandraCluster() {
+		return cassandraCluster;
+	}
 
-    public void setCassandraCluster(Cluster cassandraCluster) {
-        this.cassandraCluster = cassandraCluster;
-    }
+	public void setCassandraCluster(Cluster cassandraCluster) {
+		this.cassandraCluster = cassandraCluster;
+	}
 
-    public String getKeyspace() {
-        return keyspace;
-    }
+	public String getKeyspace() {
+		return keyspace;
+	}
 
-    public void setKeyspace(String keyspace) {
-        this.keyspace = keyspace;
-    }
+	public void setKeyspace(String keyspace) {
+		this.keyspace = keyspace;
+	}
 
-    public String getTable() {
-        return table;
-    }
+	public String getTable() {
+		return table;
+	}
 
-    public void setTable(String table) {
-        this.table = table;
-    }
+	public void setTable(String table) {
+		this.table = table;
+	}
 
-    public String getHost() {
-        return host;
-    }
+	public String getHost() {
+		return host;
+	}
 
-    public void setHost(String host) {
-        this.host = host;
-    }
+	public void setHost(String host) {
+		this.host = host;
+	}
 
-    public String getPort() {
-        return port;
-    }
+	public String getPort() {
+		return port;
+	}
 
-    public void setPort(String port) {
-        this.port = port;
-    }
+	public void setPort(String port) {
+		this.port = port;
+	}
 
-    public String getPollingQuery() {
-        return pollingQuery;
-    }
+	public String getPollingQuery() {
+		return pollingQuery;
+	}
 
-    public void setPollingQuery(String pollingQuery) {
-        this.pollingQuery = pollingQuery;
-    }
+	public void setPollingQuery(String pollingQuery) {
+		this.pollingQuery = pollingQuery;
+	}
 
-    public CassandraOperations getOperation() {
-        return operation;
-    }
-    
+	public CassandraOperations getOperation() {
+		return operation;
+	}
+
 	public void setOperation(String operation) throws CassandraException {
-        try {
-            this.operation = CassandraOperations.valueOf(operation);
-        } catch (IllegalArgumentException e) {
-            throw new CassandraException("Operation not supported", e);
-        }
-    }
+		try {
+			this.operation = CassandraOperations.valueOf(operation);
+		} catch (IllegalArgumentException e) {
+			throw new CassandraException("Operation not supported", e);
+		}
+	}
 
-    public String getUsername() {
+	public String getUsername() {
 		return username;
 	}
 
@@ -146,5 +149,23 @@ public class CassandraEndpoint extends DefaultEndpoint {
 
 	public void setBeanRef(String beanRef) {
 		this.beanRef = beanRef;
+	}
+
+	private void validateProducer() throws IllegalArgumentException {
+		if (ObjectHelper.isEmpty(keyspace)) {
+			throw new IllegalArgumentException("The parameter keyspace must be specified");
+		} else {
+			if (!ObjectHelper.isEmpty(operation)) {
+				if (operation == CassandraOperations.selectAllWhere || operation == CassandraOperations.selectAllWhere ||
+						operation == CassandraOperations.selectColumn || operation == CassandraOperations.selectColumnWhere ||
+						operation == CassandraOperations.batchInsert || operation == CassandraOperations.decrCounter || 
+						operation == CassandraOperations.deleteColumnWhere || operation == CassandraOperations.incrCounter || 
+						operation == CassandraOperations.insert || operation == CassandraOperations.update) {
+					if(ObjectHelper.isEmpty(table)){
+						throw new IllegalArgumentException("The parameter table must be specified, in case of selectAllWhere, selectColumn, selectAllWhere and selectColumnWhere operation");
+					}
+				}
+			}
+		}
 	}
 }

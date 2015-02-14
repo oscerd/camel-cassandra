@@ -70,15 +70,10 @@ public class CassandraProducer extends DefaultProducer {
     */
     public void process(Exchange exchange) throws Exception {
         Cluster cassandra = endpoint.getCassandraCluster();
-        if (endpoint.getBeanRef().isEmpty()){
+        if (ObjectHelper.isEmpty(endpoint.getBeanRef())){
         	cassandra = buildCluster(cassandra, endpoint, exchange);
         } else {
-        	Object bean = CamelContextHelper.mandatoryLookup(endpoint.getCamelContext(), endpoint.getBeanRef());
-        	if (bean instanceof Cluster) {
-        		cassandra = (Cluster) bean;
-            } else {
-                throw CassandraComponent.wrapInCamelCassandraException(new CassandraException("Bean must be of type Cluster"));        			
-            }
+        	cassandra = buildClusterFromRef();
         }
         String body = (String) exchange.getIn().getBody();
         if (body != null && !ObjectHelper.isEmpty(body)) {
@@ -696,10 +691,21 @@ public class CassandraProducer extends DefaultProducer {
         } else {
         	builder = Cluster.builder().addContactPoints(contactPoints).withPort(Integer.parseInt(cassandraPort));
         }
-        if (!endpoint.getUsername().isEmpty() && !endpoint.getPassword().isEmpty()){
+        if (!ObjectHelper.isEmpty(endpoint.getUsername()) && !ObjectHelper.isEmpty(endpoint.getPassword())){
         	builder.withCredentials(endpoint.getUsername(), endpoint.getPassword());
         }
         clusterBuilded = builder.build();
         return clusterBuilded;
+    }
+    
+    private Cluster buildClusterFromRef() throws CassandraException{
+    	Cluster clusterRef;
+    	Object bean = CamelContextHelper.mandatoryLookup(endpoint.getCamelContext(), endpoint.getBeanRef());
+    	if (bean instanceof Cluster) {
+    		clusterRef = (Cluster) bean;
+        } else {
+            throw CassandraComponent.wrapInCamelCassandraException(new CassandraException("Bean must be of type Cluster"));        			
+        }
+    	return clusterRef;
     }
 }
