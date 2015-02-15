@@ -36,6 +36,7 @@ public final class CassandraConstants {
     public static final String CASSANDRA_COUNTER_VALUE = "CamelCassandraCounterValue";
     public static final String CASSANDRA_BATCH_QUERY = "CamelCassandraBatchQuery";
     public static final String CASSANDRA_BATCH_QUERY_LIST = "CamelCassandraBatchQueryList";
+    public static final String CASSANDRA_LIMIT_NUMBER = "CamelCassandraLimitNumber";
    
     private CassandraConstants() {
     }

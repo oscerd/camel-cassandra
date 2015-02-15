@@ -183,9 +183,10 @@ public class CassandraProducer extends DefaultProducer {
 
         if (operation == CassandraOperations.selectAll) {
             Select select = QueryBuilder.select().all().from(endpoint.getTable());
+            Integer limit = (Integer) exchange.getIn().getHeader(CassandraConstants.CASSANDRA_LIMIT_NUMBER);
+            appendLimit(select, limit);
             result = session.execute(select);
         }
-
         Message responseMessage = prepareResponseMessage(exchange);
         responseMessage.setBody(result);
     }
@@ -233,7 +234,9 @@ public class CassandraProducer extends DefaultProducer {
             }
             String column = (String) exchange.getIn().getHeader(CassandraConstants.CASSANDRA_ORDERBY_COLUMN);
             String cassOrderDirection = (String) exchange.getIn().getHeader(CassandraConstants.CASSANDRA_ORDER_DIRECTION);
+            Integer limit = (Integer) exchange.getIn().getHeader(CassandraConstants.CASSANDRA_LIMIT_NUMBER);
             appendOrderBy(select, cassOrderDirection, column);
+            appendLimit(select, limit);
             result = session.execute(select);
         }
         Message responseMessage = prepareResponseMessage(exchange);
@@ -282,6 +285,8 @@ public class CassandraProducer extends DefaultProducer {
                     break;
                 }
             }
+            Integer limit = (Integer) exchange.getIn().getHeader(CassandraConstants.CASSANDRA_LIMIT_NUMBER);
+            appendLimit(select, limit);
             result = session.execute(select);
         }
         Message responseMessage = prepareResponseMessage(exchange);
@@ -302,6 +307,8 @@ public class CassandraProducer extends DefaultProducer {
         String selectColumn = (String) exchange.getIn().getHeader(CassandraConstants.CASSANDRA_SELECT_COLUMN);
         if (operation == CassandraOperations.selectColumn) {
             select = QueryBuilder.select().column(selectColumn).from(endpoint.getTable());
+            Integer limit = (Integer) exchange.getIn().getHeader(CassandraConstants.CASSANDRA_LIMIT_NUMBER);
+            appendLimit(select, limit);
             result = session.execute(select);
         }
         Message responseMessage = prepareResponseMessage(exchange);
@@ -619,6 +626,18 @@ public class CassandraProducer extends DefaultProducer {
             } else {
                 select.orderBy(QueryBuilder.desc((String) columnName));
             }
+        }
+    }
+    
+    private void appendLimit(Select.Where select, Integer limit) {
+        if (!ObjectHelper.isEmpty(limit)) {
+        	select.limit(limit);
+        }
+    }
+    
+    private void appendLimit(Select select, Integer limit) {
+        if (!ObjectHelper.isEmpty(limit)) {
+        	select.limit(limit);
         }
     }
 
