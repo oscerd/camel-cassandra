@@ -232,9 +232,8 @@ public class CassandraProducer extends DefaultProducer {
                 }
             }
             String column = (String) exchange.getIn().getHeader(CassandraConstants.CASSANDRA_ORDERBY_COLUMN);
-            String cassOrderDirection = (String) exchange.getIn().getHeader(CassandraConstants.CASSANDRA_OPERATOR);
-            CassandraOperator orderDirection = getCassandraOperator(cassOrderDirection);
-            appendOrderBy(select, orderDirection, column);
+            String cassOrderDirection = (String) exchange.getIn().getHeader(CassandraConstants.CASSANDRA_ORDER_DIRECTION);
+            appendOrderBy(select, cassOrderDirection, column);
             result = session.execute(select);
         }
         Message responseMessage = prepareResponseMessage(exchange);
@@ -612,9 +611,10 @@ public class CassandraProducer extends DefaultProducer {
         responseMessage.setBody(result);
     }
 
-    private void appendOrderBy(Select.Where select, CassandraOperator orderDirection, String columnName) {
+    private void appendOrderBy(Select.Where select, String orderDirection, String columnName) {
         if (columnName != null && orderDirection != null) {
-            if (orderDirection.equals(CassandraOperator.asc)) {
+        	CassandraOperator operator = getCassandraOperator(orderDirection);
+            if (operator.equals(CassandraOperator.asc)) {
                 select.orderBy(QueryBuilder.asc((String) columnName));
             } else {
                 select.orderBy(QueryBuilder.desc((String) columnName));
@@ -648,7 +648,7 @@ public class CassandraProducer extends DefaultProducer {
 	/**
 	 * @param operator
 	 */
-    private CassandraOperator getCassandraOperator(String operator) throws UnknownHostException {
+    private CassandraOperator getCassandraOperator(String operator) {
         CassandraOperator cassOperator = null;
         switch (operator) {
         case "eq":
