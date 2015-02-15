@@ -465,9 +465,9 @@ This route will connect to the cassandra instance running on 127.0.0.1 and port 
 
 # ToDo List
 
-~~ Add support for username/password authentication to cassandra ~~
-~~ Adding limit parameter ~~
-~~ Add support for Cluster bean reference ~~
+- Add support for username/password authentication to cassandra [x]
+- Adding limit parameter [x]
+- Add support for Cluster bean reference [x]
 - Add support for Session bean reference
 - Improve Batch operation support (one message, multiple different batch operations)
 - Improve testing
