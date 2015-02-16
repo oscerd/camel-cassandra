@@ -41,12 +41,14 @@ public class CassandraEndpoint extends DefaultEndpoint {
 	private String pollingQuery;
 	private String username;
 	private String password;
+	private String format = "normalResultSet";
+	
+	private IResultSetFormatStrategy resultSetFormatStrategy;
 
 	public CassandraEndpoint() {
 	}
 
-	public CassandraEndpoint(String uri, CassandraComponent component,
-			String remaining) {
+	public CassandraEndpoint(String uri, CassandraComponent component, String remaining) {
 		super(uri, component);
 	}
 
@@ -149,6 +151,22 @@ public class CassandraEndpoint extends DefaultEndpoint {
 
 	public void setBeanRef(String beanRef) {
 		this.beanRef = beanRef;
+	}
+
+	public String getFormat() {
+		return format;
+	}
+
+	public void setFormat(String format) {
+		this.format = format;
+	}
+
+	public IResultSetFormatStrategy getResultSetFormatStrategy() {
+		return resultSetFormatStrategy;
+	}
+
+	public void setResultSetFormatStrategy(IResultSetFormatStrategy resultSetFormatStrategy) {
+		this.resultSetFormatStrategy = resultSetFormatStrategy;
 	}
 
 	private void validateProducer() throws IllegalArgumentException {

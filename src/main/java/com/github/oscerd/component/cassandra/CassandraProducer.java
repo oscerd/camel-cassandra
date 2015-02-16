@@ -70,6 +70,7 @@ public class CassandraProducer extends DefaultProducer {
     */
     public void process(Exchange exchange) throws Exception {
         Cluster cassandra = endpoint.getCassandraCluster();
+        defineFormatStrategy();
         if (ObjectHelper.isEmpty(endpoint.getBeanRef())){
         	cassandra = buildCluster(cassandra, endpoint, exchange);
         } else {
@@ -188,7 +189,7 @@ public class CassandraProducer extends DefaultProducer {
             result = session.execute(select);
         }
         Message responseMessage = prepareResponseMessage(exchange);
-        responseMessage.setBody(result);
+        responseMessage.setBody(endpoint.getResultSetFormatStrategy().getResult(result));
     }
 
     /**
@@ -240,7 +241,7 @@ public class CassandraProducer extends DefaultProducer {
             result = session.execute(select);
         }
         Message responseMessage = prepareResponseMessage(exchange);
-        responseMessage.setBody(result);
+        responseMessage.setBody(endpoint.getResultSetFormatStrategy().getResult(result));
     }
 
     /**
@@ -290,7 +291,7 @@ public class CassandraProducer extends DefaultProducer {
             result = session.execute(select);
         }
         Message responseMessage = prepareResponseMessage(exchange);
-        responseMessage.setBody(result);
+        responseMessage.setBody(endpoint.getResultSetFormatStrategy().getResult(result));
     }
 
     /**
@@ -338,7 +339,7 @@ public class CassandraProducer extends DefaultProducer {
             result = session.execute(insert);
         }
         Message responseMessage = prepareResponseMessage(exchange);
-        responseMessage.setBody(result);
+        responseMessage.setBody(endpoint.getResultSetFormatStrategy().getResult(result));
     }
 
     /**
@@ -392,7 +393,7 @@ public class CassandraProducer extends DefaultProducer {
             result = session.execute(update);
         }
         Message responseMessage = prepareResponseMessage(exchange);
-        responseMessage.setBody(result);
+        responseMessage.setBody(endpoint.getResultSetFormatStrategy().getResult(result));
     }
 
     /**
@@ -439,7 +440,7 @@ public class CassandraProducer extends DefaultProducer {
             result = session.execute(delete);
         }
         Message responseMessage = prepareResponseMessage(exchange);
-        responseMessage.setBody(result);
+        responseMessage.setBody(endpoint.getResultSetFormatStrategy().getResult(result));
     }
 
     /**
@@ -487,7 +488,7 @@ public class CassandraProducer extends DefaultProducer {
             result = session.execute(delete);
         }
         Message responseMessage = prepareResponseMessage(exchange);
-        responseMessage.setBody(result);
+        responseMessage.setBody(endpoint.getResultSetFormatStrategy().getResult(result));
     }
 
     /**
@@ -536,7 +537,7 @@ public class CassandraProducer extends DefaultProducer {
             result = session.execute(update);
         }
         Message responseMessage = prepareResponseMessage(exchange);
-        responseMessage.setBody(result);
+        responseMessage.setBody(endpoint.getResultSetFormatStrategy().getResult(result));
     }
 
     /**
@@ -585,7 +586,7 @@ public class CassandraProducer extends DefaultProducer {
             result = session.execute(update);
         }
         Message responseMessage = prepareResponseMessage(exchange);
-        responseMessage.setBody(result);
+        responseMessage.setBody(endpoint.getResultSetFormatStrategy().getResult(result));
     }
 
     /**
@@ -615,7 +616,7 @@ public class CassandraProducer extends DefaultProducer {
             }
         }
         Message responseMessage = prepareResponseMessage(exchange);
-        responseMessage.setBody(result);
+        responseMessage.setBody(endpoint.getResultSetFormatStrategy().getResult(result));
     }
 
     private void appendOrderBy(Select.Where select, String orderDirection, String columnName) {
@@ -726,5 +727,11 @@ public class CassandraProducer extends DefaultProducer {
             throw CassandraComponent.wrapInCamelCassandraException(new CassandraException("Bean must be of type Cluster"));        			
         }
     	return clusterRef;
+    }
+    
+    private void defineFormatStrategy(){
+    	if (!ObjectHelper.isEmpty(endpoint.getFormat())){
+    	     endpoint.setResultSetFormatStrategy(new ResultSetFormatStrategies().fromName(endpoint.getFormat()));
+    	}
     }
 }
