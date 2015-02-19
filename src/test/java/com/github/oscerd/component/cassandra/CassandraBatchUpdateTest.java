@@ -34,10 +34,10 @@ import com.github.oscerd.component.cassandra.embedded.CassandraBaseTest;
 import org.apache.camel.component.mock.MockEndpoint;
 import org.junit.Test;
 
-public class CassandraBatchInsertTest extends CassandraBaseTest {
+public class CassandraBatchUpdateTest extends CassandraBaseTest {
 
     @Test
-    public void testBatchInsert() throws IOException, InterruptedException {
+    public void testBatchUpdate() throws IOException, InterruptedException {
         MockEndpoint mock = getMockEndpoint("mock:result");
         mock.expectedMessageCount(1);
         String body = "";
@@ -48,7 +48,7 @@ public class CassandraBatchInsertTest extends CassandraBaseTest {
         headers.put(CassandraConstants.CASSANDRA_CONTACT_POINTS, collAddr);
         List<Object[]> listArray = new ArrayList<Object[]>();
         listArray = populateBatch();
-        headers.put(CassandraConstants.CASSANDRA_BATCH_QUERY, "INSERT INTO songs (id, title, album, artist) VALUES (?, ?, ?, ?);");
+        headers.put(CassandraConstants.CASSANDRA_BATCH_QUERY, "UPDATE songs SET title = ?, album = ?, artist = ? where id = ?;");
         headers.put(CassandraConstants.CASSANDRA_BATCH_QUERY_LIST, listArray);
         ResultSet result = (ResultSet) template.requestBodyAndHeaders("direct:in", body, headers); 
         Cluster cluster = Cluster.builder().addContactPoint("127.0.0.1").build();
@@ -57,7 +57,7 @@ public class CassandraBatchInsertTest extends CassandraBaseTest {
         result = session.execute(select);
         session.close();
         cluster.close();
-        assertEquals(result.getAvailableWithoutFetching(), 8);
+        assertEquals(result.getAvailableWithoutFetching(), 3);
         for (Row row : (ResultSet) result) {
             assertEquals(row.getString("artist"), "Metallica");
         }
@@ -66,22 +66,12 @@ public class CassandraBatchInsertTest extends CassandraBaseTest {
     
     private List<Object[]> populateBatch() {
         List<Object[]> objectArrayList = new ArrayList<Object[]>();
-        Object[] object = {7, "Fight Fire with Fire", "Ride the Lightning", "Metallica"};
-        Object[] object1 = {8, "Ride the Lightning", "Ride the Lightning", "Metallica"};
-        Object[] object2 = {9, "For Whom the Bell Tolls", "Ride the Lightning", "Metallica"};
-        Object[] object3 = {10, "Fade To Black", "Ride the Lightning", "Metallica"};
-        Object[] object4 = {11, "Trapped Under Ice", "Ride the Lightning", "Metallica"};
-        Object[] object5 = {12, "Escape", "Ride the Lightning", "Metallica"};
-        Object[] object6 = {13, "Creeping Death", "Ride the Lightning", "Metallica"};
-        Object[] object7 = {14, "The Call of Ktulu", "Ride the Lightning", "Metallica"};
+        Object[] object = {"Fight Fire with Fire", "Ride the Lightning", "Metallica", 1};
+        Object[] object1 = {"Ride the Lightning", "Ride the Lightning", "Metallica", 2};
+        Object[] object2 = {"For Whom the Bell Tolls", "Ride the Lightning", "Metallica", 3};
         objectArrayList.add(object);
         objectArrayList.add(object1);
         objectArrayList.add(object2);
-        objectArrayList.add(object3);
-        objectArrayList.add(object4);
-        objectArrayList.add(object5);
-        objectArrayList.add(object6);
-        objectArrayList.add(object7);
         return objectArrayList;
     }
 

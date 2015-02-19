@@ -176,7 +176,7 @@ public class CassandraEndpoint extends DefaultEndpoint {
 			if (!ObjectHelper.isEmpty(operation)) {
 				if (operation == CassandraOperations.selectAllWhere || operation == CassandraOperations.selectAllWhere ||
 						operation == CassandraOperations.selectColumn || operation == CassandraOperations.selectColumnWhere ||
-						operation == CassandraOperations.batchInsert || operation == CassandraOperations.decrCounter || 
+						operation == CassandraOperations.batchOperation || operation == CassandraOperations.decrCounter || 
 						operation == CassandraOperations.deleteColumnWhere || operation == CassandraOperations.incrCounter || 
 						operation == CassandraOperations.insert || operation == CassandraOperations.update) {
 					if(ObjectHelper.isEmpty(table)){

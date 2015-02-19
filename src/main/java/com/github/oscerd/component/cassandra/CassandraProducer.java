@@ -163,8 +163,8 @@ public class CassandraProducer extends DefaultProducer {
         case decrCounter:
             doDecrCounter(exchange, CassandraOperations.decrCounter, session);
             break;
-        case batchInsert:
-            doBatchInsert(exchange, CassandraOperations.batchInsert, session);
+        case batchOperation:
+            doBatchOperation(exchange, CassandraOperations.batchOperation, session);
             break;
         default:
             throw new CassandraException("Operation not supported. Value: " + operation);
@@ -597,12 +597,12 @@ public class CassandraProducer extends DefaultProducer {
     * @param session
     * @throws Exception
     */
-    protected void doBatchInsert(Exchange exchange, CassandraOperations operation, Session session) throws Exception {
+    protected void doBatchOperation(Exchange exchange, CassandraOperations operation, Session session) throws Exception {
         ResultSet result = null;
         PreparedStatement preparedStatement = null;
         String batchQuery = (String) exchange.getIn().getHeader(CassandraConstants.CASSANDRA_BATCH_QUERY);
         List<Object[]> objectArrayList = (List<Object[]>) exchange.getIn().getHeader(CassandraConstants.CASSANDRA_BATCH_QUERY_LIST);
-        if (operation == CassandraOperations.batchInsert) {
+        if (operation == CassandraOperations.batchOperation) {
             if (batchQuery != null && objectArrayList != null) {
                 preparedStatement = session.prepare(batchQuery);
                 BatchStatement batch = new BatchStatement();
