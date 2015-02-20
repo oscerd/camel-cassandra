@@ -115,9 +115,9 @@ Cassandra endpoints support the following options, depending on whether they are
 | operation           | null    | The operation to do (operations are listed in the following of this document)       |      x       |             |
 | pollingQuery        | null    | The query to submit when using the component as consumer                            |              |      x      |
 | format              | normalResultSet    | The format of resultSet (values normalResultSet or rowsList)             |      x       |      x      |
-| username            | null    | The username to connect to a Cassandra Cluster using Authentication/Authorization   |      x       |             |
-| password            | null    | The password to connect to a Cassandra Cluster using Authentication/Authorization   |              |      x      |
-| bean:clusterRef     | null    | Provided cluster reference                                                          |      x       |      x      |
+| username            | null    | The username to connect to a Cassandra Cluster using Authentication/Authorization   |      x       |      x      |
+| password            | null    | The password to connect to a Cassandra Cluster using Authentication/Authorization   |      x       |      x      |
+| bean:clusterRef     | null    | Provided cluster reference                                                          |      x       |             |
 
 If you need to interact with a Cassandra instance as producer you'll need to set some headers in the message. This solution was developed to make the interested camel route more readable and to create a cluster connection and a working session each time you'll use the component as producer in the route. This approach is a good solution to take advantage of flexibility and functionalities of the Cassandra Datastax Java Driver. Let's list those Headers.
 
