@@ -114,6 +114,10 @@ Cassandra endpoints support the following options, depending on whether they are
 | table               | null    | The table to work on with the component                                             |      x       |             |
 | operation           | null    | The operation to do (operations are listed in the following of this document)       |      x       |             |
 | pollingQuery        | null    | The query to submit when using the component as consumer                            |              |      x      |
+| format              | normalResultSet    | The format of resultSet (values normalResultSet or rowsList)             |      x       |      x      |
+| username            | null    | The username to connect to a Cassandra Cluster using Authentication/Authorization   |      x       |             |
+| password            | null    | The password to connect to a Cassandra Cluster using Authentication/Authorization   |              |      x      |
+| bean:clusterRef     | null    | Provided cluster reference                                                          |      x       |      x      |
 
 If you need to interact with a Cassandra instance as producer you'll need to set some headers in the message. This solution was developed to make the interested camel route more readable and to create a cluster connection and a working session each time you'll use the component as producer in the route. This approach is a good solution to take advantage of flexibility and functionalities of the Cassandra Datastax Java Driver. Let's list those Headers.
 
@@ -137,6 +141,7 @@ Camel-Cassandra component provides fifteen headers by which you can define a dif
 | CassandraConstants.CASSANDRA_COUNTER_VALUE       | String                   | Define the incrementing or decrementing value of a counter column specified            |
 | CassandraConstants.CASSANDRA_BATCH_QUERY         | String                   | A query to use in a batch operation                                                    |
 | CassandraConstants.CASSANDRA_BATCH_QUERY_LIST    | List of Object[]         | The object arrays to use in the batch query                                            |
+| CassandraConstants.CASSANDRA_LIMIT_NUMBER        | Integer                  | Limit the number of rows returned by a query                                           |
 
 If you need to execute a complex query you can set the body of your message with the plain query and execute a plain query operation.
 
@@ -154,7 +159,7 @@ Here we list the possible operation to specify in the operation parameter of the
 - __deleteWhere__: A delete with a where clause
 - __incrCounter__: An increment of a counter
 - __decrCounter__: A decrement of a counter
-- __batchInsert__: A batch insert
+- __batchOperation__: A batch operation
 
 # Operators
 
@@ -188,7 +193,7 @@ This route will poll a Cassandra instances running on 127.0.0.1 on port 9042. Th
 
 Examples of camel-cassandra used as Producer:
 
-_Example 1_:
+_Example 1_: Select All
 
 ```java
 
@@ -205,7 +210,7 @@ from("direct:in")
 
 This route will connect to the cassandra instance running on 127.0.0.1 and port 9042, and will query all rows on the keyspace simplex and table songs.
 
-_Example 2_:
+_Example 2_: Select All with Where Clause
 
 ```java
 
@@ -226,7 +231,7 @@ from("direct:in")
 This route will connect to the cassandra instance running on 127.0.0.1 and port 9042, and will query all rows on the keyspace simplex and table songs where the column _album_ is equal to "The gathering". 
 Obviously we need to ensure index on the column album to make this query works.
 
-_Example 3_:
+_Example 3_: Select column
 
 ```java
 
@@ -244,7 +249,7 @@ from("direct:in")
 
 This route will connect to the cassandra instance running on 127.0.0.1 and port 9042, and will query for title column on all the rows on the keyspace simplex and table songs.
 
-_Example 4_:
+_Example 4_: Select specific column with Where Clause
 
 ```java
 
@@ -265,7 +270,7 @@ from("direct:in")
 
 This route will connect to the cassandra instance running on 127.0.0.1 and port 9042, and will query for title column on all the rows on the keyspace simplex and table songs, where the album column is equal to "The gathering". Obviously we need to ensure index on the columns _album_ and _title_ to make this query works.
 
-_Example 5_:
+_Example 5_: Insert object
 
 ```java
 
@@ -293,7 +298,7 @@ from("direct:in")
 
 This route will connect to the cassandra instance running on 127.0.0.1 and port 9042, and will insert a song into the songs table of simplex keyspace.
 
-_Example 6_:
+_Example 6_: Update with Where clause
 
 ```java
 
@@ -318,7 +323,7 @@ from("direct:in")
 
 This route will connect to the cassandra instance running on 127.0.0.1 and port 9042, and will update the song with _id_ equal to 1 into the songs table of simplex keyspace, changing the _album_ and _title_ columns.
 
-_Example 7_:
+_Example 7_: Delete with Where clause
 
 ```java
 
@@ -338,7 +343,7 @@ from("direct:in")
 
 This route will connect to the cassandra instance running on 127.0.0.1 and port 9042, and will delete the song with _id_ equal to 6 into the songs table of simplex keyspace.
 
-_Example 8_:
+_Example 8_: Delete Column with Where clause
 
 ```java
 
@@ -359,7 +364,7 @@ from("direct:in")
 
 This route will connect to the cassandra instance running on 127.0.0.1 and port 9042, and will delete the column _tags_ of the song with _id_ equal to 6 into the songs table of simplex keyspace.
 
-_Example 9_:
+_Example 9_: Increment a counter column
 
 ```java
 
@@ -381,7 +386,7 @@ from("direct:in")
 
 This route will connect to the cassandra instance running on 127.0.0.1 and port 9042, and will increment of 5 units the _like_ counter of the song with _id_ equal to 1, into the songs table of simplex keyspace.
 
-_Example 10_:
+_Example 10_: Decrement a counter column
 
 ```java
 
@@ -403,7 +408,7 @@ from("direct:in")
 
 This route will connect to the cassandra instance running on 127.0.0.1 and port 9042, and will decrement of 5 units the _like_ counter of the song with _id_ equal to 1, into the songs table of simplex keyspace.
 
-_Example 11_:
+_Example 11_: Plain query 
 
 ```java
 
@@ -421,7 +426,7 @@ from("direct:in")
 
 This route will connect to the cassandra instance running on 127.0.0.1 and port 9042, and will submit the plain query _SELECT id, album, title FROM songs_
 
-_Example 12_:
+_Example 12_: Batch Insert
 
 ```java
 
@@ -456,7 +461,28 @@ from("direct:in")
 
 ```
 
-This route will connect to the cassandra instance running on 127.0.0.1 and port 9042, and will submit a batch Insert of 7 songs.
+_Example 13_: Select with Where Clause, Order by Clause and Limit clause
+
+```java
+
+String addr = "127.0.0.1";
+List<String> collAddr = new ArrayList<String>();
+collAddr.add(addr);
+    
+from("direct:in")
+    .setHeader(CassandraConstants.CASSANDRA_CONTACT_POINTS, constant(collAddr))
+    .setHeader(CassandraConstants.CASSANDRA_WHERE_COLUMN, constant("id"))
+    .setHeader(CassandraConstants.CASSANDRA_WHERE_VALUE, constant(UUID.fromString("62c36092-82a1-3a00-93d1-46196ee77204")))
+    .setHeader(CassandraConstants.CASSANDRA_OPERATOR, constant("eq"))
+    .setHeader(CassandraConstants.CASSANDRA_ORDERBY_COLUMN, constant("song_order"))
+    .setHeader(CassandraConstants.CASSANDRA_ORDER_DIRECTION, constant("desc"))
+    .setHeader(CassandraConstants.CASSANDRA_LIMIT_NUMBER, constant(2))
+    .to("cassandra:cassandraConnection?keyspace=simplex&table=songs&operation=batchInsert")
+    .to("mock:result");
+
+```
+
+This route will connect to the cassandra instance running on 127.0.0.1 and port 9042, and will query for a specific song with id 62c36092-82a1-3a00-93d1-46196ee77204, order the result for column "song_order" and limit the result to 2 rows.
 
 # Code Examples
 
