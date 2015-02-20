@@ -484,6 +484,27 @@ from("direct:in")
 
 This route will connect to the cassandra instance running on 127.0.0.1 and port 9042, and will query for a specific song with id 62c36092-82a1-3a00-93d1-46196ee77204, order the result for column "song_order" and limit the result to 2 rows.
 
+_Example 14_: Using a Cluster reference
+
+```java
+
+String addr = "127.0.0.1";
+List<String> collAddr = new ArrayList<String>();
+collAddr.add(addr);
+
+Cluster cluster = Cluster.builder().addContactPoint("localhost").build();
+JndiRegistry reg = getContext().getRegistry();
+registry.bind("cassandraConnection", cluster);
+    
+from("direct:in")
+    .setHeader(CassandraConstants.CASSANDRA_CONTACT_POINTS, constant(collAddr))
+    .to("cassandra:bean:cassandraConnection?keyspace=simplex&table=songs&operation=selectAll")
+    .to("mock:result");
+
+```
+
+This route will connect to the cassandra instance running on 127.0.0.1 and port 9042, and will query for all the rows of table songs, using a referenced Cluster in JNDIRegistry.
+
 # Code Examples
 
 - https://github.com/oscerd/camel-cassandra-example: A simple Camel Route using Camel-cassandra component
