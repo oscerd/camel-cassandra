@@ -70,11 +70,9 @@ public class CassandraProducer extends DefaultProducer {
     */
     public void process(Exchange exchange) throws Exception {
         Cluster cassandra = endpoint.getCassandraCluster();
-        defineFormatStrategy();
-        if (ObjectHelper.isEmpty(endpoint.getBeanRef())){
+        this.defineFormatStrategy();
+        if (cassandra == null){
         	cassandra = buildCluster(cassandra, endpoint, exchange);
-        } else {
-        	cassandra = buildClusterFromRef();
         }
         String body = (String) exchange.getIn().getBody();
         if (body != null && !ObjectHelper.isEmpty(body)) {
@@ -85,7 +83,7 @@ public class CassandraProducer extends DefaultProducer {
                 throw CassandraComponent.wrapInCamelCassandraException(e);
             } finally {
                 session.close();
-                cassandra.close();
+                if (!endpoint.isExternalCluster()) cassandra.close();
             }
         } else {
             CassandraOperations operation = endpoint.getOperation();
@@ -110,7 +108,7 @@ public class CassandraProducer extends DefaultProducer {
                 throw CassandraComponent.wrapInCamelCassandraException(e);
             } finally {
                 session.close();
-                cassandra.close();
+                if (!endpoint.isExternalCluster()) cassandra.close();
             }
         }
     }

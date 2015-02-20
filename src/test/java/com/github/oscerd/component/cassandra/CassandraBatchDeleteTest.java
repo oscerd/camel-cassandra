@@ -22,20 +22,25 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import org.apache.camel.CamelExecutionException;
-import org.apache.camel.builder.RouteBuilder;
-import org.apache.camel.component.mock.MockEndpoint;
-import org.apache.camel.impl.JndiRegistry;
-import org.junit.Test;
-
 import com.datastax.driver.core.Cluster;
 import com.datastax.driver.core.ResultSet;
+import com.datastax.driver.core.Row;
+import com.datastax.driver.core.Session;
+import com.datastax.driver.core.querybuilder.QueryBuilder;
+import com.datastax.driver.core.querybuilder.Select;
+import com.datastax.driver.core.querybuilder.Select.Where;
+
+import org.apache.camel.builder.RouteBuilder;
+
 import com.github.oscerd.component.cassandra.embedded.CassandraBaseTest;
 
-public class CassandraBeanRefExceptionTest extends CassandraBaseTest {
+import org.apache.camel.component.mock.MockEndpoint;
+import org.junit.Test;
 
-    @Test(expected=CamelExecutionException.class)
-    public void testBeanRefCamelExecutionException() throws IOException, InterruptedException {
+public class CassandraBatchDeleteTest extends CassandraBaseTest {
+
+    @Test
+    public void testBatchDelete() throws IOException, InterruptedException {
         MockEndpoint mock = getMockEndpoint("mock:result");
         mock.expectedMessageCount(1);
         String body = "";
@@ -44,25 +49,33 @@ public class CassandraBeanRefExceptionTest extends CassandraBaseTest {
         List<String> collAddr = new ArrayList<String>();
         collAddr.add(addr);
         headers.put(CassandraConstants.CASSANDRA_CONTACT_POINTS, collAddr);
+        List<Object[]> listArray = new ArrayList<Object[]>();
+        listArray = populateBatch();
+        headers.put(CassandraConstants.CASSANDRA_BATCH_QUERY, "DELETE FROM songs where id = ?");
+        headers.put(CassandraConstants.CASSANDRA_BATCH_QUERY_LIST, listArray);
         ResultSet result = (ResultSet) template.requestBodyAndHeaders("direct:in", body, headers); 
-        assertEquals(6, result.getAvailableWithoutFetching());
+        Cluster cluster = Cluster.builder().addContactPoint("127.0.0.1").build();
+        Session session = cluster.connect("simplex");
+        Select select = QueryBuilder.select().all().from("songs");
+        result = session.execute(select);
+        session.close();
+        cluster.close();
+        assertEquals(result.getAvailableWithoutFetching(), 5);
         assertMockEndpointsSatisfied();
     }
-
-
-    @Override
-    protected JndiRegistry createRegistry() throws Exception {
-        JndiRegistry registry = super.createRegistry();
-        String p = "prova";
-        registry.bind("cassandraConnection", p);
-        return registry;
-    }
     
+    private List<Object[]> populateBatch() {
+        List<Object[]> objectArrayList = new ArrayList<Object[]>();
+        Object[] object = {1};
+        objectArrayList.add(object);
+        return objectArrayList;
+    }
+
     protected RouteBuilder createRouteBuilder() throws Exception {
         return new RouteBuilder() {
             public void configure() {
                 from("direct:in")
-                    .to("cassandra:bean:cassandraConnection?keyspace=simplex&table=songs&operation=selectAll")
+                    .to("cassandra:cassandraConnection?keyspace=simplex&table=songs&operation=batchOperation")
                     .to("mock:result");
             }
         };

@@ -59,7 +59,7 @@ public class CassandraConsumer extends ScheduledPollConsumer {
         String port = getEndpoint().getPort();
         String keySpace = getEndpoint().getKeyspace();
         String pollingQuery = getEndpoint().getPollingQuery();
-        Cluster cluster = null;
+        Cluster cluster = getEndpoint().getCassandraCluster();
         if (hostLists.length == 0) cluster = Cluster.builder().addContactPoint(host).withPort(Integer.parseInt(port)).build();
         else cluster = Cluster.builder().addContactPoints(hostLists).withPort(Integer.parseInt(port)).build();
         Session session = cluster.connect(keySpace);
@@ -70,7 +70,7 @@ public class CassandraConsumer extends ScheduledPollConsumer {
             throw new CassandraException("Error during execution of polling query: " + pollingQuery, e);
         } finally {
             session.close();
-            cluster.close();
+            if (!getEndpoint().isExternalCluster) cluster.close();
         }
         Exchange exchange = getEndpoint().createExchange();
         Message message = exchange.getIn();

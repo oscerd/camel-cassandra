@@ -20,6 +20,7 @@ import org.apache.camel.Consumer;
 import org.apache.camel.Processor;
 import org.apache.camel.Producer;
 import org.apache.camel.impl.DefaultEndpoint;
+import org.apache.camel.util.CamelContextHelper;
 import org.apache.camel.util.ObjectHelper;
 
 import com.datastax.driver.core.Cluster;
@@ -42,6 +43,8 @@ public class CassandraEndpoint extends DefaultEndpoint {
 	private String username;
 	private String password;
 	private String format = "normalResultSet";
+	
+	protected boolean isExternalCluster = false;
 	
 	private IResultSetFormatStrategy resultSetFormatStrategy;
 
@@ -68,6 +71,27 @@ public class CassandraEndpoint extends DefaultEndpoint {
 		// TODO Auto-generated method stub
 		return false;
 	}
+	
+    @Override
+    protected void doStart() throws Exception {
+        super.doStart();
+
+        if (cassandraCluster == null && beanRef != null) {
+            Object bean = CamelContextHelper.mandatoryLookup(getCamelContext(), beanRef);
+        	if (bean instanceof Cluster) {
+        		cassandraCluster = (Cluster) bean;
+        		isExternalCluster = true;
+            } else {
+                throw new IllegalArgumentException("CQL Bean type should be of type Cluster but was " + bean);    			
+            }
+        }
+    }
+
+    @Override
+    protected void doStop() throws Exception {
+        if (isExternalCluster) cassandraCluster.close();
+        super.doStop();
+    }
 
 	public Cluster getCassandraCluster() {
 		return cassandraCluster;
@@ -159,6 +183,10 @@ public class CassandraEndpoint extends DefaultEndpoint {
 
 	public void setFormat(String format) {
 		this.format = format;
+	}
+
+	protected boolean isExternalCluster() {
+		return isExternalCluster;
 	}
 
 	public IResultSetFormatStrategy getResultSetFormatStrategy() {
