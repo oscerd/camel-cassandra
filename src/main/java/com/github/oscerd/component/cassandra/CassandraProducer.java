@@ -631,7 +631,7 @@ public class CassandraProducer extends DefaultProducer {
         responseMessage.setBody(endpoint.getResultSetFormatStrategy().getResult(result));
     }
 
-    private void appendOrderBy(Select.Where select, String orderDirection, String columnName) {
+    private void appendOrderBy(Select.Where select, String orderDirection, String columnName) throws CassandraException {
         if (columnName != null && orderDirection != null) {
         	CassandraOperator operator = getCassandraOperator(orderDirection);
             if (operator.equals(CassandraOperator.asc)) {
@@ -679,8 +679,9 @@ public class CassandraProducer extends DefaultProducer {
 
 	/**
 	 * @param operator
+	 * @throws CassandraException 
 	 */
-    private CassandraOperator getCassandraOperator(String operator) {
+    private CassandraOperator getCassandraOperator(String operator) throws CassandraException {
         CassandraOperator cassOperator = null;
         switch (operator) {
         case "eq":
@@ -708,15 +709,16 @@ public class CassandraProducer extends DefaultProducer {
             cassOperator = CassandraOperator.desc;
             break;
         default:
-            break;
+        	throw new CassandraException("Operator does not exist. Value: " + operator);
         }
         return cassOperator;
     }
     
 	/**
 	 * @param operator
+	 * @throws CassandraException 
 	 */
-    private ConsistencyLevel getConsistencyLevel(String consistencyLevelString) {
+    private ConsistencyLevel getConsistencyLevel(String consistencyLevelString) throws CassandraException {
     	ConsistencyLevel consistencyLevel = null;
         switch (consistencyLevelString) {
         case "ONE":
@@ -753,7 +755,7 @@ public class CassandraProducer extends DefaultProducer {
         	consistencyLevel = ConsistencyLevel.LOCAL_SERIAL;
             break;
         default:
-            break;
+        	throw new CassandraException("Consistency level does not exist. Value: " + consistencyLevelString);
         }
         return consistencyLevel;
     }
@@ -782,7 +784,7 @@ public class CassandraProducer extends DefaultProducer {
     	}
     }
     
-    private <T extends Statement> T applyConsistencyLevel(T statement, String consistencyLevelString) {
+    private <T extends Statement> T applyConsistencyLevel(T statement, String consistencyLevelString) throws CassandraException {
         if (consistencyLevelString != null && !ObjectHelper.isEmpty(consistencyLevelString)) {
             statement.setConsistencyLevel(getConsistencyLevel(consistencyLevelString));
         }
