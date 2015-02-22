@@ -20,6 +20,7 @@ import org.apache.camel.Exchange;
 import org.apache.camel.Message;
 import org.apache.camel.Processor;
 import org.apache.camel.impl.ScheduledPollConsumer;
+import org.apache.camel.util.ObjectHelper;
 import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -60,8 +61,13 @@ public class CassandraConsumer extends ScheduledPollConsumer {
         String keySpace = getEndpoint().getKeyspace();
         String pollingQuery = getEndpoint().getPollingQuery();
         Cluster cluster = getEndpoint().getCassandraCluster();
-        if (hostLists.length == 0) cluster = Cluster.builder().addContactPoint(host).withPort(Integer.parseInt(port)).build();
-        else cluster = Cluster.builder().addContactPoints(hostLists).withPort(Integer.parseInt(port)).build();
+        Cluster.Builder builder;
+        if (hostLists.length == 0) builder = Cluster.builder().addContactPoint(host).withPort(Integer.parseInt(port));
+        else builder = Cluster.builder().addContactPoints(hostLists).withPort(Integer.parseInt(port));
+        if (!ObjectHelper.isEmpty(getEndpoint().getUsername()) && !ObjectHelper.isEmpty(getEndpoint().getPassword())){
+        	builder.withCredentials(getEndpoint().getUsername(), getEndpoint().getPassword());
+        }
+        cluster = builder.build();
         Session session = cluster.connect(keySpace);
         ResultSet resultSet = null;
         try {

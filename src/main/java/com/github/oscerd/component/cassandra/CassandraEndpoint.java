@@ -43,6 +43,7 @@ public class CassandraEndpoint extends DefaultEndpoint {
 	private String username;
 	private String password;
 	private String format = "normalResultSet";
+	private String consistencyLevel;
 	
 	protected boolean isExternalCluster = false;
 	
@@ -63,6 +64,7 @@ public class CassandraEndpoint extends DefaultEndpoint {
 
 	@Override
 	public Consumer createConsumer(Processor processor) throws Exception {
+		validateConsumer();
 		return new CassandraConsumer(this, processor);
 	}
 
@@ -185,6 +187,14 @@ public class CassandraEndpoint extends DefaultEndpoint {
 		this.format = format;
 	}
 
+	public String getConsistencyLevel() {
+		return consistencyLevel;
+	}
+
+	public void setConsistencyLevel(String consistencyLevel) {
+		this.consistencyLevel = consistencyLevel;
+	}
+
 	protected boolean isExternalCluster() {
 		return isExternalCluster;
 	}
@@ -202,7 +212,7 @@ public class CassandraEndpoint extends DefaultEndpoint {
 			throw new IllegalArgumentException("The parameter keyspace must be specified");
 		} else {
 			if (!ObjectHelper.isEmpty(operation)) {
-				if (operation == CassandraOperations.selectAllWhere || operation == CassandraOperations.selectAllWhere ||
+				if (operation == CassandraOperations.selectAll || operation == CassandraOperations.selectAllWhere || operation == CassandraOperations.selectAllWhere ||
 						operation == CassandraOperations.selectColumn || operation == CassandraOperations.selectColumnWhere ||
 						operation == CassandraOperations.batchOperation || operation == CassandraOperations.decrCounter || 
 						operation == CassandraOperations.deleteColumnWhere || operation == CassandraOperations.incrCounter || 
@@ -213,5 +223,11 @@ public class CassandraEndpoint extends DefaultEndpoint {
 				}
 			}
 		}
+	}
+	
+	private void validateConsumer() throws IllegalArgumentException {
+		if (ObjectHelper.isEmpty(host) || ObjectHelper.isEmpty(keyspace) || ObjectHelper.isEmpty(pollingQuery)) {
+			throw new IllegalArgumentException("The parameters host, keyspace and pollingQuery must be specified");
+		} 
 	}
 }

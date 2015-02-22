@@ -27,9 +27,12 @@ import java.util.Map;
 
 import com.datastax.driver.core.BatchStatement;
 import com.datastax.driver.core.Cluster;
+import com.datastax.driver.core.ConsistencyLevel;
 import com.datastax.driver.core.PreparedStatement;
+import com.datastax.driver.core.RegularStatement;
 import com.datastax.driver.core.ResultSet;
 import com.datastax.driver.core.Session;
+import com.datastax.driver.core.Statement;
 import com.datastax.driver.core.querybuilder.Delete;
 import com.datastax.driver.core.querybuilder.Insert;
 import com.datastax.driver.core.querybuilder.QueryBuilder;
@@ -72,7 +75,7 @@ public class CassandraProducer extends DefaultProducer {
         Cluster cassandra = endpoint.getCassandraCluster();
         this.defineFormatStrategy();
         if (cassandra == null){
-        	cassandra = buildCluster(cassandra, endpoint, exchange);
+        	cassandra = buildCluster(endpoint, exchange);
         }
         String body = (String) exchange.getIn().getBody();
         if (body != null && !ObjectHelper.isEmpty(body)) {
@@ -184,6 +187,7 @@ public class CassandraProducer extends DefaultProducer {
             Select select = QueryBuilder.select().all().from(endpoint.getTable());
             Integer limit = (Integer) exchange.getIn().getHeader(CassandraConstants.CASSANDRA_LIMIT_NUMBER);
             appendLimit(select, limit);
+            applyConsistencyLevel(select, endpoint.getConsistencyLevel());
             result = session.execute(select);
         }
         Message responseMessage = prepareResponseMessage(exchange);
@@ -236,6 +240,7 @@ public class CassandraProducer extends DefaultProducer {
             Integer limit = (Integer) exchange.getIn().getHeader(CassandraConstants.CASSANDRA_LIMIT_NUMBER);
             appendOrderBy(select, cassOrderDirection, column);
             appendLimit(select, limit);
+            applyConsistencyLevel(select, endpoint.getConsistencyLevel());
             result = session.execute(select);
         }
         Message responseMessage = prepareResponseMessage(exchange);
@@ -286,6 +291,7 @@ public class CassandraProducer extends DefaultProducer {
             }
             Integer limit = (Integer) exchange.getIn().getHeader(CassandraConstants.CASSANDRA_LIMIT_NUMBER);
             appendLimit(select, limit);
+            applyConsistencyLevel(select, endpoint.getConsistencyLevel());
             result = session.execute(select);
         }
         Message responseMessage = prepareResponseMessage(exchange);
@@ -308,6 +314,7 @@ public class CassandraProducer extends DefaultProducer {
             select = QueryBuilder.select().column(selectColumn).from(endpoint.getTable());
             Integer limit = (Integer) exchange.getIn().getHeader(CassandraConstants.CASSANDRA_LIMIT_NUMBER);
             appendLimit(select, limit);
+            applyConsistencyLevel(select, endpoint.getConsistencyLevel());
             result = session.execute(select);
         }
         Message responseMessage = prepareResponseMessage(exchange);
@@ -334,6 +341,7 @@ public class CassandraProducer extends DefaultProducer {
                 insert.value((String) element.getKey(), element.getValue());
                 insertIterator.remove();
             }
+            applyConsistencyLevel(insert, endpoint.getConsistencyLevel());
             result = session.execute(insert);
         }
         Message responseMessage = prepareResponseMessage(exchange);
@@ -388,6 +396,7 @@ public class CassandraProducer extends DefaultProducer {
                     break;
                 }
             }
+            applyConsistencyLevel(update, endpoint.getConsistencyLevel());
             result = session.execute(update);
         }
         Message responseMessage = prepareResponseMessage(exchange);
@@ -435,6 +444,7 @@ public class CassandraProducer extends DefaultProducer {
                     break;
                 }
             }
+            applyConsistencyLevel(delete, endpoint.getConsistencyLevel());
             result = session.execute(delete);
         }
         Message responseMessage = prepareResponseMessage(exchange);
@@ -483,6 +493,7 @@ public class CassandraProducer extends DefaultProducer {
                     break;
                 }
             }
+            applyConsistencyLevel(delete, endpoint.getConsistencyLevel());
             result = session.execute(delete);
         }
         Message responseMessage = prepareResponseMessage(exchange);
@@ -532,6 +543,7 @@ public class CassandraProducer extends DefaultProducer {
                     break;
                 }
             }
+            applyConsistencyLevel(update, endpoint.getConsistencyLevel());
             result = session.execute(update);
         }
         Message responseMessage = prepareResponseMessage(exchange);
@@ -581,6 +593,7 @@ public class CassandraProducer extends DefaultProducer {
                     break;
                 }
             }
+            applyConsistencyLevel(update, endpoint.getConsistencyLevel());
             result = session.execute(update);
         }
         Message responseMessage = prepareResponseMessage(exchange);
@@ -610,6 +623,7 @@ public class CassandraProducer extends DefaultProducer {
                     batch.add(preparedStatement.bind(objectArray));
                     objectArrayIterator.remove();
                 }
+                applyConsistencyLevel(batch, endpoint.getConsistencyLevel());
                 result = session.execute(batch);
             }
         }
@@ -699,8 +713,54 @@ public class CassandraProducer extends DefaultProducer {
         return cassOperator;
     }
     
-    private Cluster buildCluster(Cluster clusterBuilded, CassandraEndpoint endpoint, Exchange exchange) throws UnknownHostException{
-        List<String> contact = (List<String>) exchange.getIn().getHeader(CassandraConstants.CASSANDRA_CONTACT_POINTS);
+	/**
+	 * @param operator
+	 */
+    private ConsistencyLevel getConsistencyLevel(String consistencyLevelString) {
+    	ConsistencyLevel consistencyLevel = null;
+        switch (consistencyLevelString) {
+        case "ONE":
+        	consistencyLevel = ConsistencyLevel.ONE;
+            break;
+        case "TWO":
+        	consistencyLevel = ConsistencyLevel.TWO;
+            break;
+        case "THREE":
+        	consistencyLevel = ConsistencyLevel.THREE;
+            break;
+        case "ALL":
+        	consistencyLevel = ConsistencyLevel.ALL;
+            break;
+        case "ANY":
+        	consistencyLevel = ConsistencyLevel.ANY;
+            break;
+        case "QUORUM":
+        	consistencyLevel = ConsistencyLevel.QUORUM;
+            break;
+        case "EACH_QUORUM":
+        	consistencyLevel = ConsistencyLevel.EACH_QUORUM;
+            break;
+        case "LOCAL_QUORUM":
+        	consistencyLevel = ConsistencyLevel.LOCAL_QUORUM;
+            break;
+        case "LOCAL_ONE":
+        	consistencyLevel = ConsistencyLevel.LOCAL_ONE;
+            break;
+        case "SERIAL":
+        	consistencyLevel = ConsistencyLevel.SERIAL;
+            break;
+        case "LOCAL_SERIAL":
+        	consistencyLevel = ConsistencyLevel.LOCAL_SERIAL;
+            break;
+        default:
+            break;
+        }
+        return consistencyLevel;
+    }
+    
+    private Cluster buildCluster(CassandraEndpoint endpoint, Exchange exchange) throws UnknownHostException{
+        Cluster clusterBuilded;
+    	List<String> contact = (List<String>) exchange.getIn().getHeader(CassandraConstants.CASSANDRA_CONTACT_POINTS);
         Collection<InetAddress> contactPoints = getInetAddress(contact);
         String cassandraPort = (String) exchange.getIn().getHeader(CassandraConstants.CASSANDRA_PORT);
         Cluster.Builder builder;
@@ -716,20 +776,16 @@ public class CassandraProducer extends DefaultProducer {
         return clusterBuilded;
     }
     
-    private Cluster buildClusterFromRef() throws CassandraException{
-    	Cluster clusterRef;
-    	Object bean = CamelContextHelper.mandatoryLookup(endpoint.getCamelContext(), endpoint.getBeanRef());
-    	if (bean instanceof Cluster) {
-    		clusterRef = (Cluster) bean;
-        } else {
-            throw CassandraComponent.wrapInCamelCassandraException(new CassandraException("Bean must be of type Cluster"));        			
-        }
-    	return clusterRef;
-    }
-    
     private void defineFormatStrategy(){
     	if (!ObjectHelper.isEmpty(endpoint.getFormat())){
     	     endpoint.setResultSetFormatStrategy(new ResultSetFormatStrategies().fromName(endpoint.getFormat()));
     	}
+    }
+    
+    private <T extends Statement> T applyConsistencyLevel(T statement, String consistencyLevelString) {
+        if (consistencyLevelString != null && !ObjectHelper.isEmpty(consistencyLevelString)) {
+            statement.setConsistencyLevel(getConsistencyLevel(consistencyLevelString));
+        }
+        return statement;
     }
 }
