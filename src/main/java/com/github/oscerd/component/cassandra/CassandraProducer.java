@@ -713,7 +713,7 @@ public class CassandraProducer extends DefaultProducer {
     }
     
 	/**
-	 * @param operator
+	 * @param consistencyLevelString
 	 * @throws CassandraException 
 	 */
     private ConsistencyLevel getConsistencyLevel(String consistencyLevelString) throws CassandraException {
