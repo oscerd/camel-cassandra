@@ -109,12 +109,12 @@ Cassandra endpoints support the following options, depending on whether they are
 | Option              | Default | Description                                                                         | Producer     | Consumer    |
 |---------------------|---------|-------------------------------------------------------------------------------------|--------------|-------------|
 | host                | null    | The hosts of the Cassandra Instance, separated by comma                             |              |      x      |
-| port                | null    | The port exposing the Cassandra Instance                                            |              |      x      |
+| port                | null    | The port exposing the Cassandra Instance                                            |      x       |      x      |
 | keyspace            | null    | The keyspace to work on with the component                                          |      x       |      x      |
 | table               | null    | The table to work on with the component                                             |      x       |             |
 | operation           | null    | The operation to do (operations are listed in the following of this document)       |      x       |             |
 | pollingQuery        | null    | The query to submit when using the component as consumer                            |              |      x      |
-| format              | normalResultSet    | The format of resultSet (values normalResultSet or rowsList)             |      x       |      x      |
+| format              | normalResultSet    | The format of resultSet (values normalResultSet or rowsList)             |      x       |             |
 | username            | null    | The username to connect to a Cassandra Cluster using Authentication/Authorization   |      x       |      x      |
 | password            | null    | The password to connect to a Cassandra Cluster using Authentication/Authorization   |      x       |      x      |
 | bean:clusterRef     | null    | Provided cluster reference                                                          |      x       |             |
@@ -456,7 +456,7 @@ from("direct:in")
     .setHeader(CassandraConstants.CASSANDRA_CONTACT_POINTS, constant(collAddr))
     .setHeader(CassandraConstants.CASSANDRA_BATCH_QUERY, constant("INSERT INTO songs (id, title, album, artist) VALUES (?, ?, ?, ?);"))
     .setHeader(CassandraConstants.CASSANDRA_BATCH_QUERY_LIST, constant(objectArrayList))
-    .to("cassandra:cassandraConnection?keyspace=simplex&table=songs&operation=batchInsert")
+    .to("cassandra:cassandraConnection?keyspace=simplex&table=songs&operation=batchOperation")
     .to("mock:result");
 
 ```
@@ -503,6 +503,67 @@ from("direct:in")
 
 ```
 
+_Example 15_: Multiple Batch Operation
+
+```java
+
+String addr = "127.0.0.1";
+List<String> collAddr = new ArrayList<String>();
+collAddr.add(addr);
+
+final List<Object[]> objectArrayListInsert = new ArrayList<Object[]>();
+Object[] object = {7, "Fight Fire with Fire", "Ride the Lightning", "Metallica"};
+Object[] object1 = {8, "Ride the Lightning", "Ride the Lightning", "Metallica"};
+Object[] object2 = {9, "For Whom the Bell Tolls", "Ride the Lightning", "Metallica"};
+Object[] object3 = {10, "Fade To Black", "Ride the Lightning", "Metallica"};
+Object[] object4 = {11, "Trapped Under Ice", "Ride the Lightning", "Metallica"};
+Object[] object5 = {12, "Escape", "Ride the Lightning", "Metallica"};
+Object[] object6 = {13, "Creeping Death", "Ride the Lightning", "Metallica"};
+Object[] object7 = {14, "The Call of Ktulu", "Ride the Lightning", "Metallica"};
+objectArrayListInsert.add(object);
+objectArrayListInsert.add(object1);
+objectArrayListInsert.add(object2);
+objectArrayListInsert.add(object3);
+objectArrayListInsert.add(object4);
+objectArrayListInsert.add(object5);
+objectArrayListInsert.add(object6);
+objectArrayListInsert.add(object7);
+        
+final String insertBatch = "INSERT INTO songs (id, title, album, artist) VALUES (?, ?, ?, ?);";
+        
+final List<Object[]> objectArrayListUpdate = new ArrayList<Object[]>();
+Object[] object8 = {"Wings for Marie", "10000 days", "Tool", 1};
+Object[] object9 = {"10000 days", "10000 days", "Tool", 2};
+Object[] object10 = {"Vicarious", "10000 days", "Tool", 3};
+objectArrayListUpdate.add(object8);
+objectArrayListUpdate.add(object9);
+objectArrayListUpdate.add(object10);
+        
+final String updateBatch = "UPDATE songs SET title = ?, album = ?, artist = ? where id = ?;";
+        
+final List<Object[]> objectArrayListDelete = new ArrayList<Object[]>();
+Object[] object11 = {1};
+objectArrayListDelete.add(object11);
+        
+final String deleteBatch =  "DELETE FROM songs where id = ?";
+    
+from("direct:in")
+    .setHeader(CassandraConstants.CASSANDRA_CONTACT_POINTS, constant(collAddr))
+    .setHeader(CassandraConstants.CASSANDRA_BATCH_QUERY, constant(insertBatch))
+    .setHeader(CassandraConstants.CASSANDRA_BATCH_QUERY_LIST, constant(objectArrayListInsert))
+    .to("cassandra:cassandraConnection?keyspace=simplex&table=songs&operation=batchOperation")
+    .setBody(constant(""))
+    .setHeader(CassandraConstants.CASSANDRA_BATCH_QUERY, constant(updateBatch))
+    .setHeader(CassandraConstants.CASSANDRA_BATCH_QUERY_LIST, constant(objectArrayListUpdate))
+    .to("cassandra:cassandraConnection?keyspace=simplex&table=songs&operation=batchOperation")
+    .setBody(constant(""))
+    .setHeader(CassandraConstants.CASSANDRA_BATCH_QUERY, constant(deleteBatch))
+    .setHeader(CassandraConstants.CASSANDRA_BATCH_QUERY_LIST, constant(objectArrayListDelete))
+    .to("cassandra:cassandraConnection?keyspace=simplex&table=songs&operation=batchOperation")
+    .to("mock:result");
+
+```
+
 This route will connect to the cassandra instance running on 127.0.0.1 and port 9042, and will query for all the rows of table songs, using a referenced Cluster in JNDIRegistry.
 
 # Code Examples
@@ -516,7 +577,5 @@ This route will connect to the cassandra instance running on 127.0.0.1 and port 
 - Add support for username/password authentication to cassandra consumer [x]
 - Add limit parameter as header [x]
 - Add support for Cluster bean reference in Cassandra Producer [x]
-- Improve Batch operation support (one message, multiple different batch operations)
-- Improve testing
+- Improve testing [x]
 - Define a ResultSet transform parameter in Cassandra Producer [x]
-- Add ResultSet transform management in Cassandra Consumer
