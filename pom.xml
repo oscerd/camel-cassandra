@@ -89,20 +89,18 @@
 			<artifactId>cassandra-driver-core</artifactId>
 			<version>${cassandra.datastax.driver.core}</version>
 		</dependency>
-
-		<dependency>
-			<groupId>io.teknek</groupId>
-			<artifactId>farsandra</artifactId>
-			<version>${io.teknek.farsandra.version}</version>
-		</dependency>
-
-		<dependency>
-			<groupId>commons-lang</groupId>
-			<artifactId>commons-lang</artifactId>
-			<version>${commons-lang.version}</version>
-		</dependency>
-
+                <dependency>
+                        <groupId>commons-lang</groupId>
+                        <artifactId>commons-lang</artifactId>
+                        <version>${commons-lang.version}</version>
+                </dependency>
 		<!-- testing -->
+                <dependency>
+                        <groupId>io.teknek</groupId>
+                        <artifactId>farsandra</artifactId>
+                        <version>${io.teknek.farsandra.version}</version>
+                        <scope>test</scope>
+                </dependency>
 		<dependency>
 			<groupId>org.apache.camel</groupId>
 			<artifactId>camel-test</artifactId>
