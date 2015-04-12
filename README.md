@@ -573,6 +573,7 @@ This route will connect to the cassandra instance running on 127.0.0.1 and port 
 
 - https://github.com/oscerd/camel-cassandra-example: A simple Camel Route using Camel-cassandra component
 - https://github.com/oscerd/camel-cassandra-servicemix-example: A simple Camel Route, to be deployed on ServiceMix, using Camel-cassandra component.
+- https://github.com/oscerd/camel-cassandra-servicemix-airport-example: A Camel Route that read from a csv a list of airport (46240 airports) and insert them in a Cassandra keyspace.
 
 # ToDo List
 
