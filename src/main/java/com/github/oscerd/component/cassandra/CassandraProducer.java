@@ -46,6 +46,11 @@ import com.datastax.driver.core.querybuilder.QueryBuilder;
 import com.datastax.driver.core.querybuilder.Select;
 import com.datastax.driver.core.querybuilder.Update;
 import com.datastax.driver.core.querybuilder.Update.Assignments;
+import com.datastax.driver.core.schemabuilder.Create;
+import com.datastax.driver.core.schemabuilder.CreateIndex;
+import com.datastax.driver.core.schemabuilder.SchemaBuilder;
+import com.datastax.driver.core.schemabuilder.CreateIndex.CreateIndexOn;
+import com.datastax.driver.core.schemabuilder.SchemaStatement;
 
 /**
  *  Represents a Cassandra Producer
@@ -164,6 +169,9 @@ public class CassandraProducer extends DefaultProducer {
             break;
         case batchOperation:
             doBatchOperation(exchange, CassandraOperations.batchOperation, session);
+            break;
+        case createIndex:
+            doCreateIndex(exchange, CassandraOperations.createIndex, session);
             break;
         default:
             throw new CassandraException("Operation not supported. Value: " + operation);
@@ -627,6 +635,28 @@ public class CassandraProducer extends DefaultProducer {
         }
         Message responseMessage = prepareResponseMessage(exchange);
         responseMessage.setBody(endpoint.getResultSetFormatStrategy().getResult(result));
+    }
+    
+    /**
+    * Method that create an index
+    * 
+    * @param operation
+    * @param exchange
+    * @param session
+    * @throws Exception
+    */
+    protected void doCreateIndex(Exchange exchange, CassandraOperations operation, Session session) throws Exception {
+        ResultSet result = null;
+        String columnName = (String) exchange.getIn().getHeader(CassandraConstants.CASSANDRA_INDEX_COLUMN);
+        String indexName = (String) exchange.getIn().getHeader(CassandraConstants.CASSANDRA_INDEX_NAME);
+        if (operation == CassandraOperations.createIndex) {
+            if (columnName != null) {
+            	SchemaStatement sb = SchemaBuilder.createIndex(indexName).ifNotExists().onTable(endpoint.getKeyspace(), endpoint.getTable()).andColumn(columnName);
+            	result = session.execute(sb);
+            }
+        }
+        Message responseMessage = prepareResponseMessage(exchange);
+        responseMessage.setBody(result);
     }
 
     private void appendOrderBy(Select.Where select, String orderDirection, String columnName) throws CassandraException {
