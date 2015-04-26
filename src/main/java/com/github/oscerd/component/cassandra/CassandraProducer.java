@@ -46,10 +46,7 @@ import com.datastax.driver.core.querybuilder.QueryBuilder;
 import com.datastax.driver.core.querybuilder.Select;
 import com.datastax.driver.core.querybuilder.Update;
 import com.datastax.driver.core.querybuilder.Update.Assignments;
-import com.datastax.driver.core.schemabuilder.Create;
-import com.datastax.driver.core.schemabuilder.CreateIndex;
 import com.datastax.driver.core.schemabuilder.SchemaBuilder;
-import com.datastax.driver.core.schemabuilder.CreateIndex.CreateIndexOn;
 import com.datastax.driver.core.schemabuilder.SchemaStatement;
 
 /**
@@ -172,6 +169,9 @@ public class CassandraProducer extends DefaultProducer {
             break;
         case createIndex:
             doCreateIndex(exchange, CassandraOperations.createIndex, session);
+            break;
+        case dropIndex:
+            doDropIndex(exchange, CassandraOperations.dropIndex, session);
             break;
         default:
             throw new CassandraException("Operation not supported. Value: " + operation);
@@ -650,7 +650,7 @@ public class CassandraProducer extends DefaultProducer {
         String columnName = (String) exchange.getIn().getHeader(CassandraConstants.CASSANDRA_INDEX_COLUMN);
         String indexName = (String) exchange.getIn().getHeader(CassandraConstants.CASSANDRA_INDEX_NAME);
         if (operation == CassandraOperations.createIndex) {
-            if (columnName != null) {
+            if (columnName != null && indexName != null) {
             	SchemaStatement sb = SchemaBuilder.createIndex(indexName).ifNotExists().onTable(endpoint.getKeyspace(), endpoint.getTable()).andColumn(columnName);
             	result = session.execute(sb);
             }
@@ -658,7 +658,28 @@ public class CassandraProducer extends DefaultProducer {
         Message responseMessage = prepareResponseMessage(exchange);
         responseMessage.setBody(result);
     }
-
+   
+    /**
+    * Method that create an index
+    * 
+    * @param operation
+    * @param exchange
+    * @param session
+    * @throws Exception
+    */
+    protected void doDropIndex(Exchange exchange, CassandraOperations operation, Session session) throws Exception {
+        ResultSet result = null;
+        String indexName = (String) exchange.getIn().getHeader(CassandraConstants.CASSANDRA_INDEX_NAME);
+        if (operation == CassandraOperations.dropIndex) {
+            if (indexName != null) {
+            	SchemaStatement sb = SchemaBuilder.dropIndex(indexName);
+            	result = session.execute(sb);
+            }
+        }
+        Message responseMessage = prepareResponseMessage(exchange);
+        responseMessage.setBody(result);
+    }
+    
     private void appendOrderBy(Select.Where select, String orderDirection, String columnName) throws CassandraException {
         if (columnName != null && orderDirection != null) {
         	CassandraOperator operator = getCassandraOperator(orderDirection);

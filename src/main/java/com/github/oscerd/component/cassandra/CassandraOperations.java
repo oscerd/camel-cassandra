@@ -31,5 +31,6 @@ public enum CassandraOperations {
     incrCounter,
     decrCounter,
     batchOperation,
-    createIndex
+    createIndex,
+    dropIndex
 }
