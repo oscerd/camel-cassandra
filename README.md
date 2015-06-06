@@ -205,6 +205,8 @@ Here we list the possible operation to specify in the operation parameter of the
 - __incrCounter__: An increment of a counter
 - __decrCounter__: A decrement of a counter
 - __batchOperation__: A batch operation
+- __createIndex__: A create index operation
+- __dropIndex__: A drop index operation
 
 # Operators
 
