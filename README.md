@@ -123,7 +123,7 @@ karaf@root> install -s mvn:org.xerial.snappy/snappy-java/1.0.4
 
 ```shell
 
-karaf@root> osgi:install -s mvn:com.datastax.cassandra/cassandra-driver-core/2.1.6
+karaf@root> install -s mvn:com.datastax.cassandra/cassandra-driver-core/2.1.6
 
 ```
 
