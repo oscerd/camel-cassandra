@@ -19,19 +19,19 @@ Maven users will need to add the following dependency to their pom.xml for this 
 <dependency>
     <groupId>com.github.oscerd</groupId>
     <artifactId>camel-cassandra</artifactId>
-    <version>1.1.0</version>
+    <version>1.2.0</version>
 </dependency>
 ```
 
-The first release uses camel-core version 2.14.1 as dependency.
+The first release uses camel-core version 2.15.2 as dependency.
 
 # Use this component on Apache Servicemix
 
-Camel-Cassandra component is based on camel-core 2.14.1 release. So we need to use an Apache Servicemix version based on this release.
+Camel-Cassandra component is based on camel-core 2.15.2 release. So we need to use an Apache Servicemix version based on this release.
 
-The Apache Servicemix 5.4.0 is the correct release.
+The Apache Servicemix 6.0.0.M2 is the correct release.
 
-- Download the Apache Servicemix 5.4.0 package from: http://servicemix.apache.org/downloads/servicemix-5.4.0.html
+- Download the Apache Servicemix 6.0.0.M2 package from: http://servicemix.apache.org/downloads/servicemix-6.0.0.M2.html
 
 - Unzip the package in a directory (we denote this folder with $SERVICEMIX_HOME)
 
@@ -43,7 +43,7 @@ The Apache Servicemix 5.4.0 is the correct release.
 
 ```shell
 
-karaf@root> osgi:install -s mvn:com.google.guava/guava/14.0.1
+karaf@root> install -s mvn:com.google.guava/guava/14.0.1
 
 ```
 
@@ -51,15 +51,55 @@ karaf@root> osgi:install -s mvn:com.google.guava/guava/14.0.1
 
 ```shell
 
-karaf@root> osgi:install -s mvn:com.codahale.metrics/metrics-core/3.0.2
+karaf@root> install -s mvn:com.codahale.metrics/metrics-core/3.0.2
 
 ```
 
-- __Install Netty Bundle__
+- __Install Netty Common Bundle__
 
 ```shell
 
-karaf@root> osgi:install -s mvn:io.netty/netty/3.9.0.Final
+karaf@root> install -s mvn:io.netty/netty-common/4.0.27.Final
+
+```
+
+- __Install Netty Buffer Bundle__
+
+```shell
+
+karaf@root> install -s mvn:io.netty/netty-buffer/4.0.27.Final
+
+```
+
+- __Install Netty Transport Bundle__
+
+```shell
+
+karaf@root> install -s mvn:io.netty/netty-transport/4.0.27.Final
+
+```
+
+- __Install Netty Codec Bundle__
+
+```shell
+
+karaf@root> install -s mvn:io.netty/netty-codec/4.0.27.Final
+
+```
+
+- __Install Netty Transport Native Epoll Bundle__
+
+```shell
+
+karaf@root> install -s mvn:io.netty/netty-handler/4.0.27.Final
+
+```
+
+- __Install Netty Handler Bundle__
+
+```shell
+
+karaf@root> install -s mvn:io.netty/netty-transport-native-epoll/4.0.27.Final
 
 ```
 
@@ -67,7 +107,7 @@ karaf@root> osgi:install -s mvn:io.netty/netty/3.9.0.Final
 
 ```shell
 
-karaf@root> osgi:install -s mvn:net.jpountz.lz4/lz4/1.2.0
+karaf@root> install -s mvn:net.jpountz.lz4/lz4/1.2.0
 
 ```
 
@@ -75,7 +115,7 @@ karaf@root> osgi:install -s mvn:net.jpountz.lz4/lz4/1.2.0
 
 ```shell
 
-karaf@root> osgi:install -s mvn:org.xerial.snappy/snappy-java/1.0.4
+karaf@root> install -s mvn:org.xerial.snappy/snappy-java/1.0.4
 
 ```
 
@@ -83,7 +123,7 @@ karaf@root> osgi:install -s mvn:org.xerial.snappy/snappy-java/1.0.4
 
 ```shell
 
-karaf@root> osgi:install -s mvn:com.datastax.cassandra/cassandra-driver-core/2.1.3
+karaf@root> osgi:install -s mvn:com.datastax.cassandra/cassandra-driver-core/2.1.6
 
 ```
 
@@ -91,7 +131,7 @@ karaf@root> osgi:install -s mvn:com.datastax.cassandra/cassandra-driver-core/2.1
 
 ```shell
 
-karaf@root> osgi:install -s mvn:com.github.oscerd/camel-cassandra/1.1.0
+karaf@root> install -s mvn:com.github.oscerd/camel-cassandra/1.2.0
 
 ```
 
@@ -145,6 +185,8 @@ Camel-Cassandra component provides fifteen headers by which you can define a dif
 | CassandraConstants.CASSANDRA_BATCH_QUERY         | String                   | A query to use in a batch operation                                                    |
 | CassandraConstants.CASSANDRA_BATCH_QUERY_LIST    | List of Object[]         | The object arrays to use in the batch query                                            |
 | CassandraConstants.CASSANDRA_LIMIT_NUMBER        | Integer                  | Limit the number of rows returned by a query                                           |
+| CassandraConstants.CASSANDRA_INDEX_NAME          | String                   | An index name                                                                          |
+| CassandraConstants.CASSANDRA_INDEX_COLUMN        | String                   | A column to associate an index with                                                    |
 
 If you need to execute a complex query you can set the body of your message with the plain query and execute a plain query operation.
 
@@ -567,7 +609,50 @@ from("direct:in")
 
 ```
 
-This route will connect to the cassandra instance running on 127.0.0.1 and port 9042, and will query for all the rows of table songs, using a referenced Cluster in JNDIRegistry.
+_Example 16_: Creating an index
+
+```java
+
+String addr = "127.0.0.1";
+List<String> collAddr = new ArrayList<String>();
+collAddr.add(addr);
+
+Cluster cluster = Cluster.builder().addContactPoint("localhost").build();
+JndiRegistry reg = getContext().getRegistry();
+registry.bind("cassandraConnection", cluster);
+    
+from("direct:in")
+    .setHeader(CassandraConstants.CASSANDRA_CONTACT_POINTS, constant(collAddr))
+    .setHeader(CassandraConstants.CASSANDRA_INDEX_COLUMN, constant("artist"))
+    .setHeader(CassandraConstants.CASSANDRA_INDEX_NAME, constant("artist_idx"))
+    .to("cassandra:bean:cassandraConnection?keyspace=simplex&table=songs&operation=createIndex")
+    .to("mock:result");
+
+```
+
+This route will connect to the cassandra instance running on 127.0.0.1 and port 9042, and will create an index named artist_idx on the column artist on table songs of keyspace simplex
+
+_Example 17_: Dropping an index
+
+```java
+
+String addr = "127.0.0.1";
+List<String> collAddr = new ArrayList<String>();
+collAddr.add(addr);
+
+Cluster cluster = Cluster.builder().addContactPoint("localhost").build();
+JndiRegistry reg = getContext().getRegistry();
+registry.bind("cassandraConnection", cluster);
+    
+from("direct:in")
+    .setHeader(CassandraConstants.CASSANDRA_CONTACT_POINTS, constant(collAddr))
+    .setHeader(CassandraConstants.CASSANDRA_INDEX_NAME, constant("artist_idx"))
+    .to("cassandra:bean:cassandraConnection?keyspace=simplex&table=songs&operation=dropIndex")
+    .to("mock:result");
+
+```
+
+This route will connect to the cassandra instance running on 127.0.0.1 and port 9042, and will drop an index named artist_idx on table songs of keyspace simplex
 
 # Code Examples
 
@@ -583,3 +668,4 @@ This route will connect to the cassandra instance running on 127.0.0.1 and port 
 - Add support for Cluster bean reference in Cassandra Producer [x]
 - Improve testing [x]
 - Define a ResultSet transform parameter in Cassandra Producer [x]
+- Add createIndex/dropIndex operation [x]
