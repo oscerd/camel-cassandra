@@ -29,9 +29,9 @@ The first release uses camel-core version 2.15.2 as dependency.
 
 Camel-Cassandra component is based on camel-core 2.15.2 release. So we need to use an Apache Servicemix version based on this release.
 
-The Apache Servicemix 6.0.0.M2 is the correct release.
+The Apache Servicemix 5.5.0 is the correct release.
 
-- Download the Apache Servicemix 6.0.0.M2 package from: http://servicemix.apache.org/downloads/servicemix-6.0.0.M2.html
+- Download the Apache Servicemix 5.5.0 package from: http://servicemix.apache.org/downloads/servicemix-5.5.0.html
 
 - Unzip the package in a directory (we denote this folder with $SERVICEMIX_HOME)
 
@@ -39,99 +39,18 @@ The Apache Servicemix 6.0.0.M2 is the correct release.
 
 - Inside Karaf execute the following instructions:
 
-- __Install Google Guava Bundle__
-
 ```shell
 
-karaf@root> install -s mvn:com.google.guava/guava/14.0.1
+karaf@root> features:addurl mvn:com.github.oscerd/camel-cassandra/1.3.0/xml/features
+
 
 ```
 
-- __Install codahale metrics Bundle__
+- __Install camel-cassandra feature__
 
 ```shell
 
-karaf@root> install -s mvn:com.codahale.metrics/metrics-core/3.0.2
-
-```
-
-- __Install Netty Common Bundle__
-
-```shell
-
-karaf@root> install -s mvn:io.netty/netty-common/4.0.27.Final
-
-```
-
-- __Install Netty Buffer Bundle__
-
-```shell
-
-karaf@root> install -s mvn:io.netty/netty-buffer/4.0.27.Final
-
-```
-
-- __Install Netty Transport Bundle__
-
-```shell
-
-karaf@root> install -s mvn:io.netty/netty-transport/4.0.27.Final
-
-```
-
-- __Install Netty Codec Bundle__
-
-```shell
-
-karaf@root> install -s mvn:io.netty/netty-codec/4.0.27.Final
-
-```
-
-- __Install Netty Transport Native Epoll Bundle__
-
-```shell
-
-karaf@root> install -s mvn:io.netty/netty-handler/4.0.27.Final
-
-```
-
-- __Install Netty Handler Bundle__
-
-```shell
-
-karaf@root> install -s mvn:io.netty/netty-transport-native-epoll/4.0.27.Final
-
-```
-
-- __Install lz4 Bundle__
-
-```shell
-
-karaf@root> install -s mvn:net.jpountz.lz4/lz4/1.2.0
-
-```
-
-- __Install Snappy Java Bundle__
-
-```shell
-
-karaf@root> install -s mvn:org.xerial.snappy/snappy-java/1.0.4
-
-```
-
-- __Install Datastax Java Driver Bundle__
-
-```shell
-
-karaf@root> install -s mvn:com.datastax.cassandra/cassandra-driver-core/2.1.6
-
-```
-
-- __Install Camel Cassandra Bundle__ 
-
-```shell
-
-karaf@root> install -s mvn:com.github.oscerd/camel-cassandra/1.2.0
+karaf@root> feature:install camel-cassandra
 
 ```
 
