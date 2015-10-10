@@ -9,7 +9,8 @@
 	License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS 
 	OF ANY KIND, either express or implied. See the License for the specific 
 	language governing permissions and limitations under the License. -->
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
 	<modelVersion>4.0.0</modelVersion>
 
 	<artifactId>camel-cassandra</artifactId>
@@ -26,7 +27,7 @@
 		<camel.test.spring.version>2.15.2</camel.test.spring.version>
 		<slf4j.version>1.7.9</slf4j.version>
 		<commons-lang.version>2.6</commons-lang.version>
-		<cassandra.datastax.driver.core>2.1.6</cassandra.datastax.driver.core>
+		<cassandra.datastax.driver.core>2.1.7.1</cassandra.datastax.driver.core>
 		<io.teknek.farsandra.version>0.0.7</io.teknek.farsandra.version>
 		<maven.surefire.plugin.version>2.17</maven.surefire.plugin.version>
 		<maven.bundle.plugin.version>2.5.3</maven.bundle.plugin.version>
@@ -46,8 +47,8 @@
 		<url>https://github.com/oscerd/camel-cassandra</url>
 		<connection>scm:git:https://github.com/oscerd/camel-cassandra.git</connection>
 		<developerConnection>scm:git:https://oscerd@github.com/oscerd/camel-cassandra.git</developerConnection>
-  	  <tag>HEAD</tag>
-  </scm>
+		<tag>HEAD</tag>
+	</scm>
 
 	<developers>
 		<developer>
@@ -89,18 +90,18 @@
 			<artifactId>cassandra-driver-core</artifactId>
 			<version>${cassandra.datastax.driver.core}</version>
 		</dependency>
-                <dependency>
-                        <groupId>commons-lang</groupId>
-                        <artifactId>commons-lang</artifactId>
-                        <version>${commons-lang.version}</version>
-                </dependency>
+		<dependency>
+			<groupId>commons-lang</groupId>
+			<artifactId>commons-lang</artifactId>
+			<version>${commons-lang.version}</version>
+		</dependency>
 		<!-- testing -->
-                <dependency>
-                        <groupId>io.teknek</groupId>
-                        <artifactId>farsandra</artifactId>
-                        <version>${io.teknek.farsandra.version}</version>
-                        <scope>test</scope>
-                </dependency>
+		<dependency>
+			<groupId>io.teknek</groupId>
+			<artifactId>farsandra</artifactId>
+			<version>${io.teknek.farsandra.version}</version>
+			<scope>test</scope>
+		</dependency>
 		<dependency>
 			<groupId>org.apache.camel</groupId>
 			<artifactId>camel-test</artifactId>
@@ -201,6 +202,50 @@
 						<goals>
 							<goal>sign</goal>
 						</goals>
+					</execution>
+				</executions>
+			</plugin>
+			<plugin>
+				<groupId>org.codehaus.mojo</groupId>
+				<artifactId>build-helper-maven-plugin</artifactId>
+				<executions>
+					<execution>
+						<id>attach-artifacts</id>
+						<phase>package</phase>
+						<goals>
+							<goal>attach-artifact</goal>
+						</goals>
+						<configuration>
+							<artifacts>
+								<artifact>
+									<file>target/classes/features.xml</file>
+									<type>xml</type>
+									<classifier>features</classifier>
+								</artifact>
+							</artifacts>
+						</configuration>
+					</execution>
+				</executions>
+			</plugin>
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-resources-plugin</artifactId>
+				<executions>
+					<execution>
+						<id>copy-features</id>
+						<phase>generate-resources</phase>
+						<goals>
+							<goal>copy-resources</goal>
+						</goals>
+						<configuration>
+							<outputDirectory>target/features</outputDirectory>
+							<resources>
+								<resource>
+									<directory>src/main/features</directory>
+									<filtering>true</filtering>
+								</resource>
+							</resources>
+						</configuration>
 					</execution>
 				</executions>
 			</plugin>
