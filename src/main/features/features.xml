@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<features xmlns='http://karaf.apache.org/xmlns/features/v1.2.1' name='camel-cassandra'>
+  <feature name='camel-cassandra' version='${project.version}'>
+    <bundle>mvn:io.netty/netty-common/${netty4.version}</bundle>
+    <bundle>mvn:io.netty/netty-codec/${netty4.version}</bundle>
+    <bundle>mvn:io.netty/netty-transport/${netty4.version}</bundle>
+    <bundle>mvn:io.netty/netty-buffer/${netty4.version}</bundle>
+    <bundle>mvn:io.netty/netty-handler/${netty4.version}</bundle>
+    <bundle>mvn:io.netty/netty-transport-native-epoll/${netty4.version}</bundle>
+    <bundle>wrap:mvn:net.jpountz.lz4/lz4/${lz4.version}</bundle>
+    <bundle>wrap:mvn:org.xerial.snappy/snappy-java/${snappy.version}</bundle>
+    <bundle>mvn:com.codahale.metrics/metrics-core/${metrics.version}</bundle>
+    <bundle>mvn:com.google.guava/guava/${google.guava.version}</bundle>
+    <bundle>mvn:com.datastax.cassandra/cassandra-driver-core/${cassandra.datastax.driver.core}</bundle>
+    <bundle>mvn:com.github.oscerd/camel-cassandra/${project.version}</bundle>
+    </feature>
+</features>

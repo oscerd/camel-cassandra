@@ -28,6 +28,11 @@
 		<slf4j.version>1.7.9</slf4j.version>
 		<commons-lang.version>2.6</commons-lang.version>
 		<cassandra.datastax.driver.core>2.1.7.1</cassandra.datastax.driver.core>
+		<google.guava.version>14.0.1</google.guava.version>
+		<metrics.version>3.0.2</metrics.version>
+		<snappy.version>1.0.4</snappy.version>
+		<lz4.version>1.2.0</lz4.version>
+		<netty4.version>4.0.27.Final</netty4.version>
 		<io.teknek.farsandra.version>0.0.7</io.teknek.farsandra.version>
 		<maven.surefire.plugin.version>2.17</maven.surefire.plugin.version>
 		<maven.bundle.plugin.version>2.5.3</maven.bundle.plugin.version>
