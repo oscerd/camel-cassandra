@@ -28,9 +28,11 @@ import org.apache.camel.component.mock.MockEndpoint;
 import org.junit.Test;
 
 import com.datastax.driver.core.Cluster;
+import com.datastax.driver.core.IndexMetadata;
 import com.datastax.driver.core.ResultSet;
 import com.datastax.driver.core.Row;
 import com.datastax.driver.core.Session;
+import com.datastax.driver.core.TableMetadata;
 import com.github.oscerd.component.cassandra.embedded.CassandraBaseTest;
 
 public class CassandraCreateIndexAlreadyExistsTest extends CassandraBaseTest {
@@ -51,24 +53,15 @@ public class CassandraCreateIndexAlreadyExistsTest extends CassandraBaseTest {
         assertEquals(result.isExhausted(), true);
         assertMockEndpointsSatisfied();
         Cluster cluster = Cluster.builder().addContactPoint("127.0.0.1").build();
-        Session session = cluster.connect("simplex");
-        // Verify that the indexes exist on the right columns
-        ResultSet rows = session.execute(
-            "SELECT column_name, index_name, index_options, index_type, component_index "
-                + "FROM system.schema_columns "
-                + "WHERE keyspace_name='simplex' "
-                + "AND columnfamily_name='songs' "
-                + "AND column_name IN ('title')"
-        );
-        assertEquals(rows.getAvailableWithoutFetching(), 1);
-        Iterator<Row> iterator = rows.iterator();
-        while (iterator.hasNext()) {
-			Row index = iterator.next();
-	        assertEquals(index.getString("index_name"), "title_idx");
-	        assertEquals(index.getString("index_type"), "COMPOSITES");
-	        assertEquals(index.getString("column_name"), "title");
-		}
-        session.close();
+        TableMetadata table = cluster.getMetadata()
+                .getKeyspace("simplex")
+                .getTable("songs");
+        IndexMetadata index1 = table.getIndex("album_idx");
+        IndexMetadata index2 = table.getIndex("title_idx");
+        assertNotNull(index1);
+        assertEquals("album",index1.getTarget());
+        assertNotNull(index2);
+        assertEquals("title",index2.getTarget());
         cluster.close();
     }
 

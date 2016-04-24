@@ -53,7 +53,7 @@ public class CassandraBaseTest extends CamelTestSupport {
         String id = RandomStringUtils.random(12,
                 "0123456789abcdefghijklmnopqrstuvwxyz");
         fs = new Farsandra();
-        fs.withVersion("2.0.3");
+        fs.withVersion("3.5");
         fs.withCleanInstanceOnStart(true);
         fs.withInstanceName("target" + File.separator + id);
         fs.withCreateConfigurationFiles(true);

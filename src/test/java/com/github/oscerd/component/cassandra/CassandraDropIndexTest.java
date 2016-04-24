@@ -28,9 +28,11 @@ import org.apache.camel.component.mock.MockEndpoint;
 import org.junit.Test;
 
 import com.datastax.driver.core.Cluster;
+import com.datastax.driver.core.IndexMetadata;
 import com.datastax.driver.core.ResultSet;
 import com.datastax.driver.core.Row;
 import com.datastax.driver.core.Session;
+import com.datastax.driver.core.TableMetadata;
 import com.github.oscerd.component.cassandra.embedded.CassandraBaseTest;
 
 public class CassandraDropIndexTest extends CassandraBaseTest {
@@ -50,22 +52,11 @@ public class CassandraDropIndexTest extends CassandraBaseTest {
         assertEquals(result.isExhausted(), true);
         assertMockEndpointsSatisfied();
         Cluster cluster = Cluster.builder().addContactPoint("127.0.0.1").build();
-        Session session = cluster.connect("simplex");
-        // Verify that index is null
-        ResultSet rows = session.execute(
-            "SELECT column_name, index_name, index_options, index_type, component_index "
-                + "FROM system.schema_columns "
-                + "WHERE keyspace_name='simplex' "
-                + "AND columnfamily_name='songs' "
-                + "AND column_name IN ('title')"
-        );
-        assertEquals(rows.getAvailableWithoutFetching(), 1);
-        Iterator<Row> it = rows.iterator();
-        while (it.hasNext()){
-        	Row row = it.next();
-        	assertEquals(row.getString("index_name"), null);
-        }
-        session.close();
+        TableMetadata table = cluster.getMetadata()
+                .getKeyspace("simplex")
+                .getTable("songs");
+        IndexMetadata index1 = table.getIndex("title_idx");
+        assertNull(index1);
         cluster.close();
     }
 
