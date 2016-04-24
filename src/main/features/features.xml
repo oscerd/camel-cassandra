@@ -9,7 +9,7 @@
     <bundle>mvn:io.netty/netty-transport-native-epoll/${netty4.version}</bundle>
     <bundle>wrap:mvn:net.jpountz.lz4/lz4/${lz4.version}</bundle>
     <bundle>wrap:mvn:org.xerial.snappy/snappy-java/${snappy.version}</bundle>
-    <bundle>mvn:com.codahale.metrics/metrics-core/${metrics.version}</bundle>
+    <bundle>mvn:io.dropwizard.metrics/metrics-core/${metrics.version}</bundle>
     <bundle>mvn:com.google.guava/guava/${google.guava.version}</bundle>
     <bundle>mvn:com.datastax.cassandra/cassandra-driver-core/${cassandra.datastax.driver.core}</bundle>
     <bundle>mvn:com.github.oscerd/camel-cassandra/${project.version}</bundle>

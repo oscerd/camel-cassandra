@@ -28,7 +28,7 @@
 		<commons-lang.version>2.6</commons-lang.version>
 		<cassandra.datastax.driver.core>3.0.0</cassandra.datastax.driver.core>
 		<google.guava.version>18.0</google.guava.version>
-		<metrics.version>3.0.2</metrics.version>
+		<metrics.version>3.1.2</metrics.version>
 		<snappy.version>1.0.4</snappy.version>
 		<lz4.version>1.2.0</lz4.version>
 		<netty4.version>4.0.27.Final</netty4.version>
