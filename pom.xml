@@ -21,9 +21,9 @@
 	<url>https://github.com/oscerd/camel-cassandra</url>
 
 	<properties>
-		<camel.core.version>2.17.1</camel.core.version>
-		<camel.test.version>2.17.1</camel.test.version>
-		<camel.test.spring.version>2.17.1</camel.test.spring.version>
+		<camel.core.version>2.17.2</camel.core.version>
+		<camel.test.version>2.17.2</camel.test.version>
+		<camel.test.spring.version>2.17.2</camel.test.spring.version>
 		<slf4j.version>1.7.9</slf4j.version>
 		<commons-lang.version>2.6</commons-lang.version>
 		<cassandra.datastax.driver.core>3.0.1</cassandra.datastax.driver.core>
