@@ -19,29 +19,21 @@ Maven users will need to add the following dependency to their pom.xml for this 
 <dependency>
     <groupId>com.github.oscerd</groupId>
     <artifactId>camel-cassandra</artifactId>
-    <version>1.4.0</version>
+    <version>2.17.2</version>
 </dependency>
 ```
 
-The latest release uses camel-core version 2.16.1 as dependency.
+The latest release uses camel-core version 2.17.2 as dependency.
 
-# Use this component on Apache Servicemix
+# Use this component on Apache Karaf
 
-Camel-Cassandra component is based on camel-core 2.16.1 release. So we need to use an Apache Servicemix version based on this release.
-
-The Apache Servicemix 6.1.0 is the correct release.
-
-- Download the Apache Servicemix 6.1.0 package from: http://servicemix.apache.org/downloads/servicemix-6.1.0.html
-
-- Unzip the package in a directory (we denote this folder with $SERVICEMIX_HOME)
-
-- Execute $SERVICEMIX_HOME/bin/servicemix
+Camel-Cassandra component is based on camel-core 2.17.2 release. 
 
 - Inside Karaf execute the following instructions:
 
 ```shell
 
-karaf@root> features:repo-add mvn:com.github.oscerd/camel-cassandra/1.4.0/xml/features
+karaf@root> features:repo-add mvn:com.github.oscerd/camel-cassandra/2.17.2/xml/features
 
 
 ```
