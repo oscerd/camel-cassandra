@@ -17,7 +17,7 @@
 	<name>Camel :: Cassandra</name>
 	<description>Camel Cassandra Component</description>
 	<groupId>com.github.oscerd</groupId>
-	<version>2.17.6-SNAPSHOT</version>
+	<version>2.17.6</version>
 	<url>https://github.com/oscerd/camel-cassandra</url>
 
 	<properties>
@@ -51,7 +51,7 @@
 		<url>https://github.com/oscerd/camel-cassandra</url>
 		<connection>scm:git:https://github.com/oscerd/camel-cassandra.git</connection>
 		<developerConnection>scm:git:https://oscerd@github.com/oscerd/camel-cassandra.git</developerConnection>
-		<tag>HEAD</tag>
+		<tag>camel-cassandra-2.17.6</tag>
 	</scm>
 
 	<developers>
