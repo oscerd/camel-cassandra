@@ -19,7 +19,7 @@ Maven users will need to add the following dependency to their pom.xml for this 
 <dependency>
     <groupId>com.github.oscerd</groupId>
     <artifactId>camel-cassandra</artifactId>
-    <version>2.18.0</version>
+    <version>2.19.1</version>
 </dependency>
 ```
 
