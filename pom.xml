@@ -24,7 +24,7 @@
 		<camel.version>2.19.4</camel.version>
 		<slf4j.version>1.7.9</slf4j.version>
 		<commons-lang.version>2.6</commons-lang.version>
-		<cassandra.datastax.driver.core>3.3.0</cassandra.datastax.driver.core>
+		<cassandra.datastax.driver.core>3.3.1</cassandra.datastax.driver.core>
 		<google.guava.version>18.0</google.guava.version>
 		<metrics.version>3.1.2</metrics.version>
 		<snappy.version>1.1.2.6</snappy.version>
