@@ -345,7 +345,6 @@ public class CassandraProducer extends DefaultProducer {
             while (insertIterator.hasNext()) {
                 Map.Entry element = (Map.Entry) insertIterator.next();
                 insert.value((String) element.getKey(), element.getValue());
-                insertIterator.remove();
             }
             applyConsistencyLevel(insert, endpoint.getConsistencyLevel());
             result = session.execute(insert);
@@ -376,7 +375,6 @@ public class CassandraProducer extends DefaultProducer {
             while (updateIterator.hasNext()) {
                 Map.Entry element = (Map.Entry) updateIterator.next();
                 update.with(QueryBuilder.set((String) element.getKey(), element.getValue()));
-                updateIterator.remove();
             }
             if (whereColumn != null && whereValue != null) {
                 switch (operator) {
@@ -627,7 +625,6 @@ public class CassandraProducer extends DefaultProducer {
                 while (objectArrayIterator.hasNext()) {
                     Object[] objectArray = (Object[]) objectArrayIterator.next();
                     batch.add(preparedStatement.bind(objectArray));
-                    objectArrayIterator.remove();
                 }
                 applyConsistencyLevel(batch, endpoint.getConsistencyLevel());
                 result = session.execute(batch);
