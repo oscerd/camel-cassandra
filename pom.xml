@@ -17,11 +17,11 @@
 	<name>Camel :: Cassandra</name>
 	<description>Camel Cassandra Component</description>
 	<groupId>com.github.oscerd</groupId>
-	<version>2.20.3-SNAPSHOT</version>
+	<version>2.21.0-SNAPSHOT</version>
 	<url>https://github.com/oscerd/camel-cassandra</url>
 
 	<properties>
-		<camel.version>2.20.2</camel.version>
+		<camel.version>2.21.0</camel.version>
 		<slf4j.version>1.7.9</slf4j.version>
 		<commons-lang.version>2.6</commons-lang.version>
 		<cassandra.datastax.driver.core>3.3.2</cassandra.datastax.driver.core>
