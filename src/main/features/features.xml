@@ -8,7 +8,7 @@
     <bundle>mvn:io.netty/netty-buffer/${netty4.version}</bundle>
     <bundle>mvn:io.netty/netty-handler/${netty4.version}</bundle>
     <bundle>mvn:io.netty/netty-transport-native-epoll/${netty4.version}</bundle>
-    <bundle>wrap:mvn:net.jpountz.lz4/lz4/${lz4.version}</bundle>
+    <bundle>wrap:mvn:org.lz4/lz4-java/${lz4.version}</bundle>
     <bundle>mvn:org.apache.directory.studio/org.apache.commons.lang/2.6</bundle>
     <bundle>wrap:mvn:org.xerial.snappy/snappy-java/${snappy.version}</bundle>
     <bundle>mvn:io.dropwizard.metrics/metrics-core/${metrics.version}</bundle>
