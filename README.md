@@ -19,21 +19,21 @@ Maven users will need to add the following dependency to their pom.xml for this 
 <dependency>
     <groupId>com.github.oscerd</groupId>
     <artifactId>camel-cassandra</artifactId>
-    <version>2.22.1</version>
+    <version>2.23.1</version>
 </dependency>
 ```
 
-The latest release uses camel-core version 2.22.1 as dependency.
+The latest release uses camel-core version 2.23.1 as dependency.
 
 # Use this component on Apache Karaf
 
-Camel-Cassandra component is based on camel-core 2.22.1 release. 
+Camel-Cassandra component is based on camel-core 2.23.1 release. 
 
 - Inside Karaf execute the following instructions:
 
 ```shell
 
-karaf@root> features:repo-add mvn:com.github.oscerd/camel-cassandra/2.22.1/xml/features
+karaf@root> features:repo-add mvn:com.github.oscerd/camel-cassandra/2.23.1/xml/features
 
 
 ```
