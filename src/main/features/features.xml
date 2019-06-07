@@ -1,7 +1,8 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <features xmlns='http://karaf.apache.org/xmlns/features/v1.2.1' name='camel-cassandra'>
+<repository>mvn:org.apache.camel.karaf/apache-camel/${camel.version}/xml/features</repository>
   <feature name='camel-cassandra' version='${project.version}'>
-    <bundle>mvn:org.apache.camel/camel-core/${camel.version}</bundle>
+  <feature version='${camel.version}'>camel-core</feature>
     <bundle>mvn:io.netty/netty-common/${netty4.version}</bundle>
     <bundle>mvn:io.netty/netty-codec/${netty4.version}</bundle>
     <bundle>mvn:io.netty/netty-transport/${netty4.version}</bundle>
