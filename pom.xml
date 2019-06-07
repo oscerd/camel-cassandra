@@ -32,7 +32,7 @@
 		<netty4.version>4.1.25.Final</netty4.version>
 		<io.teknek.farsandra.version>0.0.9</io.teknek.farsandra.version>
 		<maven.surefire.plugin.version>2.17</maven.surefire.plugin.version>
-		<maven.bundle.plugin.version>2.5.3</maven.bundle.plugin.version>
+		<maven.bundle.plugin.version>4.2.0</maven.bundle.plugin.version>
 		<maven.compiler.plugin.version>3.2</maven.compiler.plugin.version>
 		<maven.release.plugin.version>2.5</maven.release.plugin.version>
 	</properties>
