@@ -5,7 +5,7 @@
 
 # Introduction
 
-This component use the Apache Cassandra Datastax Java driver: http://docs.datastax.com/en/drivers/java/3.6/
+This component use the Apache Cassandra Datastax Java driver: http://docs.datastax.com/en/drivers/java/3.7/
 
 Apache Cassandra is an open source distributed database management system designed to handle large amounts of data across many commodity servers, providing high availability with no single point of failure. Cassandra offers robust support for clusters spanning multiple datacenters, with asynchronous masterless replication allowing low latency operations for all clients.
 
